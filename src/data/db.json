@@ -1,0 +1,49 @@
+{
+  "exercises": [],
+  "sessions": [],
+  "history": [],
+  "user": {
+    "id": "user_1",
+    "name": "Athlete",
+    "weight": 70,
+    "height": 175
+  },
+  "muscles": {
+    "Chest": [
+      "Upper",
+      "Middle",
+      "Lower"
+    ],
+    "Back": [
+      "Lats",
+      "Traps",
+      "Lower Back"
+    ],
+    "Legs": [
+      "Quads",
+      "Hamstrings",
+      "Calves",
+      "Glutes"
+    ],
+    "Shoulders": [
+      "Front",
+      "Side",
+      "Rear"
+    ],
+    "Biceps": [
+      "Long Head",
+      "Short Head"
+    ],
+    "Triceps": [
+      "Long Head",
+      "Lateral Head",
+      "Medial Head"
+    ],
+    "Core": [
+      "Upper Abs",
+      "Lower Abs",
+      "Obliques"
+    ],
+    "Full Body": []
+  }
+}

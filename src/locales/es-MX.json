@@ -1,0 +1,149 @@
+{
+    "common": {
+        "gymPro": "GIMNASIO PRO",
+        "required": "Requerido",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "edit": "Editar",
+        "loading": "Cargando...",
+        "confirmDelete": "¿Estás seguro?",
+        "yes": "Sí",
+        "no": "No"
+    },
+    "nav": {
+        "stats": "Estadísticas",
+        "exercises": "Ejercicios",
+        "plan": "Plan",
+        "tips": "Tips",
+        "profile": "Perfil"
+    },
+    "auth": {
+        "createAccount": "Crear Cuenta",
+        "welcomeBack": "Bienvenido de nuevo",
+        "startJourney": "Comienza tu viaje fitness hoy",
+        "continueProgress": "Inicia sesión para continuar tu progreso",
+        "emailPlaceholder": "Correo electrónico",
+        "passwordPlaceholder": "Contraseña",
+        "loading": "Cargando...",
+        "signUp": "Registrarse",
+        "signIn": "Iniciar Sesión",
+        "or": "O",
+        "continueGoogle": "Continuar con Google",
+        "alreadyAccount": "¿Ya tienes una cuenta?",
+        "noAccount": "¿No tienes una cuenta?",
+        "failedLogin": "Error al iniciar sesión",
+        "failedSignup": "Error al crear cuenta",
+        "failedGoogle": "Error al iniciar sesión con Google"
+    },
+    "profile": {
+        "title": "Perfil",
+        "settings": "Configuración",
+        "language": "Idioma",
+        "theme": "Tema",
+        "darkMode": "Modo Oscuro",
+        "personalInfo": "Información Personal",
+        "name": "Nombre",
+        "weight": "Peso (kg)",
+        "height": "Altura (cm)",
+        "saveSuccess": "Perfil guardado correctamente"
+    },
+    "library": {
+        "title": "Biblioteca de Ejercicios",
+        "searchPlaceholder": "Buscar ejercicios...",
+        "newExercise": "Nuevo Ejercicio",
+        "filterMuscle": "Músculo",
+        "filterEquipment": "Equipo",
+        "noExercises": "No se encontraron ejercicios",
+        "deleteConfirm": "¿Eliminar este ejercicio?",
+        "addFirst": "¡Añade tu primer ejercicio desde YouTube!",
+        "manageMuscles": "Gestionar Músculos",
+        "other": "Otro"
+    },
+    "planner": {
+        "title": "Mis Planes",
+        "noPlans": "Aún no hay planes de entrenamiento.",
+        "createPlan": "Crear Plan",
+        "edit": "Editar",
+        "deleteSessionConfirm": "¿Eliminar esta sesión?",
+        "startWorkout": "Iniciar Entrenamiento",
+        "editPlan": "Editar Plan de Entrenamiento",
+        "newPlan": "Nuevo Plan de Entrenamiento",
+        "exercises": "Ejercicios"
+    },
+    "stats": {
+        "title": "Progreso",
+        "workouts": "Entrenamientos",
+        "volume": "Volumen Total",
+        "history": "Historial",
+        "avgDuration": "Duración Promedio",
+        "recentActivity": "Actividad Reciente",
+        "noLogs": "Aún no hay entrenamientos registrados. ¡Ve a entrenar!",
+        "defaultName": "Entrenamiento",
+        "deleteLogConfirm": "¿Eliminar este registro de entrenamiento?"
+    },
+    "tips": {
+        "mainTitle": "Guía de Entrenamiento",
+        "weekly": {
+            "title": "Horarios Semanales",
+            "ppl": {
+                "title": "Empuje / Jalón / Pierna (3-6 Días)",
+                "desc": "Mejor para intermedios/avanzados. Rota grupos musculares para máxima recuperación.",
+                "push": "Empuje (Lun/Jue): Pecho, Hombros, Tríceps",
+                "pull": "Jalón (Mar/Vie): Espalda, Bíceps, Deltoides Post.",
+                "legs": "Pierna (Mie/Sab): Cuádriceps, Isquios, Glúteos, Pantorrillas"
+            },
+            "upperLower": {
+                "title": "Superior / Inferior (4 Días)",
+                "desc": "Gran equilibrio entre volumen y recuperación.",
+                "upper": "Lun/Jue: Tren Superior (Pecho, Espalda, Brazos)",
+                "lower": "Mar/Vie: Tren Inferior (Piernas, Core)"
+            },
+            "fullBody": {
+                "title": "Cuerpo Completo (3 Días)",
+                "desc": "Ideal para principiantes o agendas ocupadas.",
+                "schedule": "Lun/Mie/Vie: Entrena cada grupo muscular (1 ejercicio por parte)."
+            }
+        },
+        "muscles": {
+            "title": "Guía Muscular",
+            "chest": "Pecho",
+            "back": "Espalda",
+            "legs": "Piernas",
+            "shoulders": "Hombros",
+            "biceps": "Bíceps",
+            "triceps": "Tríceps",
+            "core": "Core"
+        },
+        "techniques": {
+            "title": "Técnicas",
+            "supersets": {
+                "name": "Superseries",
+                "desc": "Dos ejercicios realizados consecutivamente sin descanso (ej. Press de Banca directo a Flexiones)."
+            },
+            "dropsets": {
+                "name": "Drop Sets",
+                "desc": "Realiza una serie al fallo, luego baja el peso inmediatamente y continúa al fallo de nuevo."
+            },
+            "pyramid": {
+                "name": "Pirámide",
+                "desc": "Empieza ligero/altas repeticiones, aumenta peso/baja repeticiones cada serie, luego invierte."
+            },
+            "tut": {
+                "name": "Tiempo Bajo Tensión (TUT)",
+                "desc": "Ralentizar la repetición (ej. 3s bajar, 1s subir) para aumentar el trabajo muscular sin peso pesado."
+            }
+        },
+        "general": {
+            "title": "Consejos Generales",
+            "progressive": {
+                "title": "Sobrecarga Progresiva",
+                "desc": "Para crecer, debes desafiar tus músculos. Añade peso, repeticiones o mejora la forma cada semana."
+            },
+            "recovery": {
+                "title": "Recuperación",
+                "desc": "Los músculos crecen mientras duermes, no mientras entrenas. Apunta a 7-9 horas de sueño y come suficiente proteína."
+            }
+        }
+    }
+}

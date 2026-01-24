@@ -1,0 +1,149 @@
+{
+    "common": {
+        "gymPro": "GYM PRO",
+        "required": "Required",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "loading": "Loading...",
+        "confirmDelete": "Are you sure?",
+        "yes": "Yes",
+        "no": "No"
+    },
+    "nav": {
+        "stats": "Stats",
+        "exercises": "Exercises",
+        "plan": "Plan",
+        "tips": "Tips",
+        "profile": "Profile"
+    },
+    "auth": {
+        "createAccount": "Create Account",
+        "welcomeBack": "Welcome Back",
+        "startJourney": "Start your fitness journey today",
+        "continueProgress": "Sign in to continue your progress",
+        "emailPlaceholder": "Email address",
+        "passwordPlaceholder": "Password",
+        "loading": "Loading...",
+        "signUp": "Sign Up",
+        "signIn": "Sign In",
+        "or": "OR",
+        "continueGoogle": "Continue with Google",
+        "alreadyAccount": "Already have an account?",
+        "noAccount": "Don't have an account?",
+        "failedLogin": "Failed to log in",
+        "failedSignup": "Failed to create an account",
+        "failedGoogle": "Failed to log in with Google"
+    },
+    "profile": {
+        "title": "Profile",
+        "settings": "Settings",
+        "language": "Language",
+        "theme": "Theme",
+        "darkMode": "Dark Mode",
+        "personalInfo": "Personal Info",
+        "name": "Name",
+        "weight": "Weight (kg)",
+        "height": "Height (cm)",
+        "saveSuccess": "Profile saved successfully"
+    },
+    "library": {
+        "title": "Exercise Library",
+        "searchPlaceholder": "Search exercises...",
+        "newExercise": "New Exercise",
+        "filterMuscle": "Muscle",
+        "filterEquipment": "Equipment",
+        "noExercises": "No exercises found",
+        "deleteConfirm": "Delete this exercise?",
+        "addFirst": "Add your first exercise from YouTube!",
+        "manageMuscles": "Manage Muscles",
+        "other": "Other"
+    },
+    "planner": {
+        "title": "My Plans",
+        "noPlans": "No workout plans yet.",
+        "createPlan": "Create Plan",
+        "edit": "Edit",
+        "deleteSessionConfirm": "Delete this session?",
+        "startWorkout": "Start Workout",
+        "editPlan": "Edit Workout Plan",
+        "newPlan": "New Workout Plan",
+        "exercises": "Exercises"
+    },
+    "stats": {
+        "title": "Progress",
+        "workouts": "Workouts",
+        "volume": "Total Volume",
+        "history": "History",
+        "avgDuration": "Avg Duration",
+        "recentActivity": "Recent Activity",
+        "noLogs": "No workouts logged yet. Go train!",
+        "defaultName": "Workout",
+        "deleteLogConfirm": "Delete this workout log?"
+    },
+    "tips": {
+        "mainTitle": "Training Guide",
+        "weekly": {
+            "title": "Weekly Schedules",
+            "ppl": {
+                "title": "Push / Pull / Legs (3-6 Days)",
+                "desc": "Best for intermediate/advanced. Rotates muscle groups to allow max recovery.",
+                "push": "Push (Mon/Thu): Chest, Shoulders, Triceps",
+                "pull": "Pull (Tue/Fri): Back, Biceps, Rear Delts",
+                "legs": "Legs (Wed/Sat): Quads, Hamstrings, Glutes, Calves"
+            },
+            "upperLower": {
+                "title": "Upper / Lower (4 Days)",
+                "desc": "Great balance of volume and recovery.",
+                "upper": "Mon/Thu: Upper Body (Chest, Back, Arms)",
+                "lower": "Tue/Fri: Lower Body (Legs, Core)"
+            },
+            "fullBody": {
+                "title": "Full Body (3 Days)",
+                "desc": "Ideal for beginners or busy schedules.",
+                "schedule": "Mon/Wed/Fri: Hit every muscle group each session (1 exercise per part)."
+            }
+        },
+        "muscles": {
+            "title": "Muscle Guide",
+            "chest": "Chest",
+            "back": "Back",
+            "legs": "Legs",
+            "shoulders": "Shoulders",
+            "biceps": "Biceps",
+            "triceps": "Triceps",
+            "core": "Core"
+        },
+        "techniques": {
+            "title": "Techniques",
+            "supersets": {
+                "name": "Supersets",
+                "desc": "Two exercises performed back-to-back with no rest. (e.g., Bench Press directly into Push-ups)."
+            },
+            "dropsets": {
+                "name": "Drop Sets",
+                "desc": "Perform a set to failure, then immediately lower the weight and continue to failure again."
+            },
+            "pyramid": {
+                "name": "Pyramid",
+                "desc": "Start light/high reps, increase weight/lower reps each set, then reverse."
+            },
+            "tut": {
+                "name": "Time Under Tension (TUT)",
+                "desc": "Slowing down the rep (e.g., 3s down, 1s up) to increase muscle work without heavy weight."
+            }
+        },
+        "general": {
+            "title": "General Tips",
+            "progressive": {
+                "title": "Progressive Overload",
+                "desc": "To grow, you must challenge your muscles. Add weight, reps, or better form every week."
+            },
+            "recovery": {
+                "title": "Recovery",
+                "desc": "Muscles grow while you sleep, not while you train. Aim for 7-9 hours of sleep and eat enough protein (1.6g-2.2g per kg of bodyweight)."
+            }
+        }
+    }
+}
