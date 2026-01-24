@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getYoutubeId, getThumbnail, getVideoTitle } from '../services/youtube';
 import { v4 as uuidv4 } from 'uuid';
-import { saveExercise, getMuscles } from '../services/db';
-import { Youtube, Save, Loader, Smile } from 'lucide-react';
+import { saveExercise, getMuscles, getExercises } from '../services/db';
+import { Youtube, Save, Loader, Smile, Repeat, X } from 'lucide-react';
 
 const FITNESS_EMOJIS = ["💪", "🏋️‍♀️", "🏋️‍♂️", "🤸", "🧘", "🏃", "🔥", "⚡", "🛑", "🩸", "🥵", "🦵", "🍑"];
 
@@ -13,6 +13,11 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
     const [error, setError] = useState('');
     const [type, setType] = useState('weight'); // weight, bodyweight, cardio
     const [isLoadingTitle, setIsLoadingTitle] = useState(false);
+
+    // Variants
+    const [variants, setVariants] = useState(initialUrl.variants || []); // IDs
+    const [allExercises, setAllExercises] = useState([]);
+    const [variantSearch, setVariantSearch] = useState('');
 
     // Emoji Picker
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -26,6 +31,7 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
     useEffect(() => {
         const muscles = getMuscles();
         setAllMuscles(muscles);
+        setAllExercises(getExercises());
 
         // Init default if needed
         const groups = Object.keys(muscles);
@@ -94,12 +100,30 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
             type: type,
             muscle: muscle,
             subMuscle: subMuscle || null,
+            variants: variants,
             createdAt: new Date().toISOString()
         };
 
         saveExercise(newExercise);
         onSave(newExercise);
     };
+
+    const handleAddVariant = (exId) => {
+        if (!variants.includes(exId)) {
+            setVariants([...variants, exId]);
+        }
+        setVariantSearch('');
+    };
+
+    const handleRemoveVariant = (exId) => {
+        setVariants(variants.filter(id => id !== exId));
+    };
+
+    const filteredVariants = allExercises.filter(e =>
+        e.id !== (initialUrl ? initialUrl.id : null) && // Don't show self if editing (though we generate ID on save usually, logic might differ but fine for now)
+        e.name.toLowerCase().includes(variantSearch.toLowerCase()) &&
+        !variants.includes(e.id)
+    ).slice(0, 5);
 
     const subOptions = allMuscles[muscle] || [];
 
@@ -141,6 +165,78 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
                     />
                 </div>
             )}
+
+            {/* Variants Section */}
+            <div className="flex-col" style={{ gap: '0.5rem' }}>
+                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Variants (Alternatives)</label>
+
+                {/* Selected Variants List */}
+                {variants.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                        {variants.map(vId => {
+                            const vEx = allExercises.find(e => e.id === vId);
+                            if (!vEx) return null;
+                            return (
+                                <div key={vId} style={{
+                                    background: 'rgba(255,255,255,0.1)',
+                                    padding: '0.3rem 0.6rem',
+                                    borderRadius: '16px',
+                                    fontSize: '0.8rem',
+                                    display: 'flex', alignItems: 'center', gap: '0.3rem'
+                                }}>
+                                    {vEx.name}
+                                    <X size={14} style={{ cursor: 'pointer' }} onClick={() => handleRemoveVariant(vId)} />
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+
+                <div style={{ position: 'relative' }}>
+                    <div style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-primary)' }}>
+                        <Repeat size={18} />
+                    </div>
+                    <input
+                        type="text"
+                        value={variantSearch}
+                        onChange={(e) => setVariantSearch(e.target.value)}
+                        placeholder="Search exercises to link..."
+                        style={{
+                            width: '100%',
+                            padding: '0.8rem',
+                            paddingLeft: '2.5rem',
+                            background: 'var(--bg-secondary)',
+                            border: '1px solid var(--glass-border)',
+                            borderRadius: 'var(--radius-md)',
+                            color: 'white',
+                            outline: 'none'
+                        }}
+                    />
+                    {variantSearch && (
+                        <div style={{
+                            position: 'absolute', top: '100%', left: 0, right: 0,
+                            background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)',
+                            borderRadius: 'var(--radius-md)', zIndex: 10,
+                            marginTop: '0.5rem', maxHeight: '150px', overflowY: 'auto'
+                        }}>
+                            {filteredVariants.map(ex => (
+                                <div
+                                    key={ex.id}
+                                    onClick={() => handleAddVariant(ex.id)}
+                                    style={{ padding: '0.8rem', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                                    className="hover-bg-primary"
+                                >
+                                    <div style={{ fontSize: '0.9rem' }}>{ex.name}</div>
+                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{ex.muscle}</div>
+                                </div>
+                            ))}
+                            {filteredVariants.length === 0 && (
+                                <div style={{ padding: '0.8rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>No matches found</div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
 
             {/* Title Input with Emoji Picker */}
             <div className="flex-col" style={{ gap: '0.5rem' }}>

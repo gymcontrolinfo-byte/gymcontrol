@@ -21,4 +21,10 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 
 // Initialize Cloud Firestore and get a reference to the service
+// Initialize Cloud Firestore and get a reference to the service
 export const db = getFirestore(app);
+
+// Initialize Cloud Storage and get a reference to the service
+import { getStorage } from "firebase/storage";
+export const storage = getStorage(app);
+

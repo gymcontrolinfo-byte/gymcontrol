@@ -29,6 +29,7 @@ if (!fs.existsSync(DB_PATH)) {
         user: { id: 'user_1', name: 'Athlete', weight: 70, height: 175 },
         exercises: [],
         sessions: [],
+        shared_plans: [],
         history: [],
         muscles: {
             "Chest": ["Upper", "Middle", "Lower"],
@@ -68,6 +69,42 @@ app.post('/api/db', (req, res) => {
     } catch (err) {
         console.error('Error writing DB:', err);
         res.status(500).json({ error: 'Failed to save database' });
+    }
+});
+
+app.post('/api/share', (req, res) => {
+    try {
+        const { shareData } = req.body;
+        if (!shareData) return res.status(400).json({ error: 'Missing shareData' });
+
+        const data = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+        if (!data.shared_plans) data.shared_plans = [];
+
+        data.shared_plans.push(shareData);
+
+        fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error sharing plan:', err);
+        res.status(500).json({ error: 'Failed to share plan' });
+    }
+});
+
+app.post('/api/resolve-share', (req, res) => {
+    try {
+        const { shareId } = req.body;
+        if (!shareId) return res.status(400).json({ error: 'Missing shareId' });
+
+        const data = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+        if (!data.shared_plans) data.shared_plans = [];
+
+        data.shared_plans = data.shared_plans.filter(s => s.id !== shareId);
+
+        fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Error resolving share:', err);
+        res.status(500).json({ error: 'Failed to resolve share' });
     }
 });
 

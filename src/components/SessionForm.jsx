@@ -219,7 +219,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                                     const newEx = [...selectedExercises];
                                                     // Loop through the specific indices of this group
                                                     for (let k = i; k < j; k++) {
-                                                        newEx[k].sets = val;
+                                                        newEx[k].sets = val === '' ? '' : Number(val);
                                                     }
                                                     setSelectedExercises(newEx);
                                                 }}
@@ -277,13 +277,13 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                                     </div>
 
                                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                                                        <div className="flex-col">
+                                                        <div className="flex-col" style={{ minWidth: 0 }}>
                                                             <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Reps</label>
-                                                            <input type="number" value={subEx.reps} onChange={(e) => handleUpdateDetails(globalIdx, 'reps', e.target.value)} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px' }} />
+                                                            <input type="number" value={subEx.reps} onChange={(e) => handleUpdateDetails(globalIdx, 'reps', e.target.value === '' ? '' : Number(e.target.value))} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px', width: '100%' }} />
                                                         </div>
-                                                        <div className="flex-col">
+                                                        <div className="flex-col" style={{ minWidth: 0 }}>
                                                             <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Kg</label>
-                                                            <input type="number" value={subEx.weight} onChange={(e) => handleUpdateDetails(globalIdx, 'weight', e.target.value)} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px' }} />
+                                                            <input type="number" value={subEx.weight} onChange={(e) => handleUpdateDetails(globalIdx, 'weight', e.target.value === '' ? '' : Number(e.target.value))} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px', width: '100%' }} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -331,17 +331,17 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                         </div>
                                     </div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
-                                        <div className="flex-col">
+                                        <div className="flex-col" style={{ minWidth: 0 }}>
                                             <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Sets</label>
-                                            <input type="number" value={item.sets} onChange={(e) => handleUpdateDetails(i, 'sets', e.target.value)} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px' }} />
+                                            <input type="number" value={item.sets} onChange={(e) => handleUpdateDetails(i, 'sets', e.target.value === '' ? '' : Number(e.target.value))} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px', width: '100%' }} />
                                         </div>
-                                        <div className="flex-col">
+                                        <div className="flex-col" style={{ minWidth: 0 }}>
                                             <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Reps</label>
-                                            <input type="number" value={item.reps} onChange={(e) => handleUpdateDetails(i, 'reps', e.target.value)} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px' }} />
+                                            <input type="number" value={item.reps} onChange={(e) => handleUpdateDetails(i, 'reps', e.target.value === '' ? '' : Number(e.target.value))} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px', width: '100%' }} />
                                         </div>
-                                        <div className="flex-col">
+                                        <div className="flex-col" style={{ minWidth: 0 }}>
                                             <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Kg</label>
-                                            <input type="number" value={item.weight} onChange={(e) => handleUpdateDetails(i, 'weight', e.target.value)} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px' }} />
+                                            <input type="number" value={item.weight} onChange={(e) => handleUpdateDetails(i, 'weight', e.target.value === '' ? '' : Number(e.target.value))} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px', width: '100%' }} />
                                         </div>
                                     </div>
                                 </div>

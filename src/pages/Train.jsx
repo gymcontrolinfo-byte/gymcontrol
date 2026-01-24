@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getSessions, saveLog, getExercises } from '../services/db';
 import { v4 as uuidv4 } from 'uuid';
-import { Timer, CheckCircle, ArrowLeft, Play, Save, Link } from 'lucide-react';
+import { Timer, CheckCircle, ArrowLeft, Play, Save, Link, Repeat, Search, X } from 'lucide-react';
 
 const Train = () => {
     const { sessionId } = useParams();
@@ -11,9 +11,15 @@ const Train = () => {
     const [session, setSession] = useState(null);
     const [logs, setLogs] = useState({}); // { exerciseIdx: { setIdx: { reps, weight, done } } }
     const [elapsed, setElapsed] = useState(0);
+    const [startTime, setStartTime] = useState(null);
     const [isActive, setIsActive] = useState(true);
     const [allExercises, setAllExercises] = useState([]);
     const [previewVideoId, setPreviewVideoId] = useState(null);
+
+    // Swap State
+    const [swapModalOpen, setSwapModalOpen] = useState(false);
+    const [swapIndex, setSwapIndex] = useState(null);
+    const [swapSearch, setSwapSearch] = useState('');
 
     useEffect(() => {
         setAllExercises(getExercises());
@@ -41,16 +47,22 @@ const Train = () => {
     }, [sessionId, navigate]);
 
     useEffect(() => {
+        if (isActive && !startTime) {
+            setStartTime(Date.now());
+        }
+
         let interval = null;
         if (isActive) {
             interval = setInterval(() => {
-                setElapsed(prev => prev + 1);
+                if (startTime) {
+                    setElapsed(Math.floor((Date.now() - startTime) / 1000));
+                }
             }, 1000);
         } else if (!isActive && interval) {
             clearInterval(interval);
         }
         return () => clearInterval(interval);
-    }, [isActive]);
+    }, [isActive, startTime]);
 
     const formatTime = (seconds) => {
         const m = Math.floor(seconds / 60);
@@ -65,7 +77,7 @@ const Train = () => {
                 ...prev[exIdx],
                 [setIdx]: {
                     ...prev[exIdx][setIdx],
-                    [field]: field === 'done' ? value : Number(value)
+                    [field]: field === 'done' ? value : (value === '' ? '' : Number(value))
                 }
             }
         }));
@@ -102,6 +114,64 @@ const Train = () => {
         const found = allExercises.find(e => e.id === ex.exerciseId);
         return found ? found.videoId : null;
     };
+
+    const handleSwapClick = (idx) => {
+        setSwapIndex(idx);
+        setSwapModalOpen(true);
+        setSwapSearch('');
+    };
+
+    const handleReplaceExercise = (newEx) => {
+        if (swapIndex === null) return;
+
+        // Create new session exercise object
+        const oldEx = session.exercises[swapIndex];
+        const newSessionEx = {
+            ...oldEx,
+            exerciseId: newEx.id,
+            name: newEx.name,
+            videoId: newEx.videoId,
+            thumbnail: newEx.thumbnail,
+            // Keep sets/reps/weight targets from old exercise or reset? 
+            // Better to keep targets if similar, but maybe reset logs?
+            // User request: "relation between two exercises... variant"
+        };
+
+        const newExercises = [...session.exercises];
+        newExercises[swapIndex] = newSessionEx;
+
+        setSession(prev => ({ ...prev, exercises: newExercises }));
+
+        // Reset logs for this index
+        setLogs(prev => {
+            const newLogs = { ...prev };
+            // Initialize fresh logs for this index
+            newLogs[swapIndex] = {};
+            for (let i = 0; i < newSessionEx.sets; i++) {
+                newLogs[swapIndex][i] = {
+                    reps: newSessionEx.reps, // Use targets from session object
+                    weight: newSessionEx.weight,
+                    done: false
+                };
+            }
+            return newLogs;
+        });
+
+        setSwapModalOpen(false);
+        setSwapIndex(null);
+    };
+
+    // Prepare variants for current swap
+    const currentSwapExercise = swapIndex !== null ? session.exercises[swapIndex] : null;
+    const currentSwapOriginal = currentSwapExercise ? allExercises.find(e => e.id === currentSwapExercise.exerciseId) : null;
+
+    const relevantVariants = currentSwapOriginal?.variants || [];
+    const variantExercises = relevantVariants.map(vId => allExercises.find(e => e.id === vId)).filter(Boolean);
+
+    const filteredSwapOptions = allExercises.filter(ex =>
+        ex.name.toLowerCase().includes(swapSearch.toLowerCase()) &&
+        ex.id !== currentSwapExercise?.exerciseId
+    ).slice(0, 50); // Cap results
 
     if (!session) return <div>Loading...</div>;
 
@@ -185,6 +255,13 @@ const Train = () => {
                                                                         <Play size={12} />
                                                                     </button>
                                                                 )}
+                                                                <button
+                                                                    onClick={() => handleSwapClick(i)}
+                                                                    style={{ flexShrink: 0, background: 'none', border: 'none', color: 'var(--text-muted)', padding: 0, cursor: 'pointer', marginLeft: '0.2rem' }}
+                                                                    title="Swap Exercise"
+                                                                >
+                                                                    <Repeat size={12} />
+                                                                </button>
                                                             </div>
                                                             <input
                                                                 type="number"
@@ -211,9 +288,9 @@ const Train = () => {
                                                                 onClick={() => toggleSetDone(globalIdx, setIdx)}
                                                                 style={{
                                                                     width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                                    background: isDone ? 'var(--accent-success)' : 'var(--bg-secondary)',
-                                                                    border: 'none', borderRadius: '4px', cursor: 'pointer',
-                                                                    color: isDone ? 'white' : 'var(--text-muted)'
+                                                                    background: isDone ? 'rgba(34, 197, 94, 0.2)' : 'var(--bg-secondary)',
+                                                                    border: isDone ? '1px solid var(--accent-success)' : 'none', borderRadius: '4px', cursor: 'pointer',
+                                                                    color: isDone ? 'var(--accent-success)' : 'var(--text-muted)'
                                                                 }}
                                                             >
                                                                 <CheckCircle size={18} />
@@ -235,16 +312,25 @@ const Train = () => {
                         elements.push(
                             <div key={i} className="glass-card fade-in" style={{ padding: '1rem', overflow: 'hidden' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                                    <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{ex.name}</h3>
-                                    {vidId && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{ex.name}</h3>
+                                        {vidId && (
+                                            <button
+                                                onClick={() => setPreviewVideoId(vidId)}
+                                                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                                                title="Watch Video"
+                                            >
+                                                <Play size={18} />
+                                            </button>
+                                        )}
                                         <button
-                                            onClick={() => setPreviewVideoId(vidId)}
-                                            className="btn btn-secondary"
-                                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', display: 'flex', gap: '0.3rem', alignItems: 'center' }}
+                                            onClick={() => handleSwapClick(i)}
+                                            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                                            title="Swap Exercise"
                                         >
-                                            <Play size={14} /> Video
+                                            <Repeat size={18} />
                                         </button>
-                                    )}
+                                    </div>
                                 </div>
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -265,8 +351,12 @@ const Train = () => {
                                                 style={{
                                                     display: 'grid', gridTemplateColumns: '30px 1fr 1fr 40px', gap: '0.5rem',
                                                     alignItems: 'center',
-                                                    opacity: isDone ? 0.5 : 1,
-                                                    transition: 'all 0.3s ease'
+                                                    transition: 'all 0.3s ease',
+                                                    backgroundColor: isDone ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
+                                                    borderRadius: '8px',
+                                                    padding: '0.5rem 0',
+                                                    marginTop: '0.2rem',
+                                                    border: isDone ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid transparent'
                                                 }}
                                             >
                                                 <div style={{ textAlign: 'center', fontWeight: 600, color: 'var(--text-secondary)' }}>{setIdx + 1}</div>
@@ -295,9 +385,9 @@ const Train = () => {
                                                     onClick={() => toggleSetDone(i, setIdx)}
                                                     style={{
                                                         width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                        background: isDone ? 'var(--accent-success)' : 'var(--bg-secondary)',
-                                                        border: 'none', borderRadius: '4px', cursor: 'pointer',
-                                                        color: isDone ? 'white' : 'var(--text-muted)'
+                                                        background: isDone ? 'rgba(34, 197, 94, 0.2)' : 'var(--bg-secondary)',
+                                                        border: isDone ? '1px solid var(--accent-success)' : 'none', borderRadius: '4px', cursor: 'pointer',
+                                                        color: isDone ? 'var(--accent-success)' : 'var(--text-muted)'
                                                     }}
                                                 >
                                                     <CheckCircle size={18} />
@@ -306,7 +396,7 @@ const Train = () => {
                                         );
                                     })}
                                 </div>
-                            </div>
+                            </div >
                         );
                     }
                 }
@@ -318,26 +408,114 @@ const Train = () => {
             </button>
 
             {/* Video Modal */}
-            {previewVideoId && (
+            {
+                previewVideoId && (
+                    <div style={{
+                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                        background: 'rgba(0,0,0,0.9)', zIndex: 50,
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
+                    }} onClick={() => setPreviewVideoId(null)}>
+                        <div style={{ width: '90%', maxWidth: '500px', aspectRatio: '16/9', background: 'black' }} onClick={e => e.stopPropagation()}>
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                src={`https://www.youtube.com/embed/${previewVideoId}?autoplay=1`}
+                                title="Preview"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                        <button style={{ marginTop: '1rem', color: 'white', background: 'transparent', border: '1px solid white', padding: '0.5rem 1rem', borderRadius: '4px' }} onClick={() => setPreviewVideoId(null)}>
+                            Close
+                        </button>
+                    </div>
+                )}
+
+            {/* Swap Modal */}
+            {swapModalOpen && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.9)', zIndex: 50,
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
-                }} onClick={() => setPreviewVideoId(null)}>
-                    <div style={{ width: '90%', maxWidth: '500px', aspectRatio: '16/9', background: 'black' }} onClick={e => e.stopPropagation()}>
-                        <iframe
-                            width="100%"
-                            height="100%"
-                            src={`https://www.youtube.com/embed/${previewVideoId}?autoplay=1`}
-                            title="Preview"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                        ></iframe>
+                    background: 'rgba(0,0,0,0.9)', zIndex: 60,
+                    padding: '2rem',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center'
+                }} onClick={() => setSwapModalOpen(false)}>
+                    <div style={{
+                        width: '100%', maxWidth: '500px',
+                        background: 'var(--bg-secondary)',
+                        borderRadius: '12px',
+                        border: '1px solid var(--glass-border)',
+                        display: 'flex', flexDirection: 'column',
+                        maxHeight: '80vh',
+                        overflow: 'hidden'
+                    }} onClick={e => e.stopPropagation()}>
+
+                        <div style={{ padding: '1rem', borderBottom: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Swap Exercise</h3>
+                            <button onClick={() => setSwapModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)' }}><X size={20} /></button>
+                        </div>
+
+                        <div style={{ padding: '1rem', overflowY: 'auto' }}>
+                            {/* Suggested Variants */}
+                            {variantExercises.length > 0 && !swapSearch && (
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold' }}>SUGGESTED VARIANTS</label>
+                                    <div style={{ display: 'grid', gap: '0.5rem' }}>
+                                        {variantExercises.map(ex => (
+                                            <div
+                                                key={ex.id}
+                                                onClick={() => handleReplaceExercise(ex)}
+                                                className="glass-card"
+                                                style={{ padding: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', border: '1px solid var(--accent-primary)' }}
+                                            >
+                                                {ex.thumbnail && <img src={ex.thumbnail} alt="" style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: '4px' }} />}
+                                                <div>
+                                                    <div style={{ fontWeight: 600 }}>{ex.name}</div>
+                                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{ex.muscle}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Search All */}
+                            <div>
+                                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>SEARCH ALL</label>
+                                <div style={{ position: 'relative', marginBottom: '1rem' }}>
+                                    <input
+                                        autoFocus
+                                        type="text"
+                                        placeholder="Search exercises..."
+                                        value={swapSearch}
+                                        onChange={e => setSwapSearch(e.target.value)}
+                                        className="glass-input"
+                                        style={{ width: '100%', padding: '0.8rem 0.8rem 0.8rem 2.5rem' }}
+                                    />
+                                    <Search size={16} style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                                </div>
+
+                                <div style={{ display: 'grid', gap: '0.5rem' }}>
+                                    {filteredSwapOptions.map(ex => (
+                                        <div
+                                            key={ex.id}
+                                            onClick={() => handleReplaceExercise(ex)}
+                                            style={{
+                                                padding: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem',
+                                                borderBottom: '1px solid var(--glass-border)'
+                                            }}
+                                        >
+                                            {ex.thumbnail && <img src={ex.thumbnail} alt="" style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: '4px' }} />}
+                                            <div>
+                                                <div style={{ fontWeight: 600 }}>{ex.name}</div>
+                                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{ex.muscle}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <button style={{ marginTop: '1rem', color: 'white', background: 'transparent', border: '1px solid white', padding: '0.5rem 1rem', borderRadius: '4px' }} onClick={() => setPreviewVideoId(null)}>
-                        Close
-                    </button>
                 </div>
             )}
         </div>

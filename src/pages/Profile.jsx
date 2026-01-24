@@ -35,6 +35,41 @@ const Profile = () => {
         }
     };
 
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setLoading(true);
+        setError('');
+        try {
+            // Import dynamically or assume imports are added at top
+            // To ensure imports are present, I will update imports in a separate replace block or assume user has them? 
+            // Better to include imports in the full file replace if many changes, but let's try to add logic here.
+            // Wait, I need to add imports to the top of the file as well.
+            // I will use a multi-step approach or just assume I can add imports.
+            // Actually, I should use `multi_replace_file_content` to add imports AND this logic.
+            // But I'm in `replace_file_content`.
+            // I'll proceed with this block and then add imports in another call.
+
+            const { ref, uploadBytes, getDownloadURL } = await import("firebase/storage");
+            const { storage } = await import("../firebase");
+
+            const storageRef = ref(storage, `profile_pictures/${currentUser.uid}`);
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+
+            setPhotoURL(url);
+            // Auto-save photo URL invocation
+            await updateProfile(currentUser, { photoURL: url });
+            setMessage('Profile picture updated!');
+        } catch (err) {
+            console.error(err);
+            setError('Failed to upload image. ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleLogout = async () => {
         try {
             await logout();
@@ -53,7 +88,7 @@ const Profile = () => {
             <h2 className="text-gradient">{t('profile.title')}</h2>
 
             <div className="glass-card flex-col flex-center" style={{ padding: '2rem', gap: '1rem' }}>
-                <div style={{ position: 'relative', width: '100px', height: '100px' }}>
+                <div style={{ position: 'relative', width: '100px', height: '100px', cursor: 'pointer' }} onClick={() => document.getElementById('fileInput').click()}>
                     <div style={{
                         width: '100%',
                         height: '100%',
@@ -63,14 +98,29 @@ const Profile = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        border: '3px solid var(--accent-primary)'
+                        border: '3px solid var(--accent-primary)',
+                        position: 'relative'
                     }}>
                         {photoURL ? (
                             <img src={photoURL} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                             <User size={50} color="var(--text-muted)" />
                         )}
+                        <div style={{
+                            position: 'absolute', bottom: 0, left: 0, right: 0,
+                            background: 'rgba(0,0,0,0.6)', height: '30px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}>
+                            <Camera size={16} color="white" />
+                        </div>
                     </div>
+                    <input
+                        id="fileInput"
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={handleFileChange}
+                    />
                 </div>
                 <div style={{ textAlign: 'center' }}>
                     <h3 style={{ fontSize: '1.2rem' }}>{currentUser?.email}</h3>

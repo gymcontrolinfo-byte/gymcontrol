@@ -248,3 +248,51 @@ export const deleteSubMuscle = (group, sub) => {
 export const resetDB = () => {
     window.location.reload();
 };
+
+// --- Sharing (Local Server) ---
+const API_URL = 'http://localhost:3001/api';
+
+export const sharePlan = async (fromEmail, toEmail, plan, exercises) => {
+    const shareData = {
+        id: crypto.randomUUID(),
+        from: fromEmail,
+        to: toEmail,
+        timestamp: new Date().toISOString(),
+        plan,
+        exercises
+    };
+
+    const res = await fetch(`${API_URL}/share`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shareData })
+    });
+
+    if (!res.ok) throw new Error('Failed to share plan');
+    return true;
+};
+
+export const getPendingShares = async (userEmail) => {
+    // Determine where to fetch. Since server.js has /api/db, we can just read the whole DB and filter.
+    // Or we could add a specific endpoint. Let's use /api/db for simplicity if it exposes everything.
+    // server.js's /api/db returns the whole JSON.
+    try {
+        const res = await fetch(`${API_URL}/db`);
+        if (!res.ok) return [];
+        const data = await res.json();
+        return (data.shared_plans || []).filter(s => s.to === userEmail);
+    } catch (e) {
+        console.error("Error fetching shares", e);
+        return [];
+    }
+};
+
+export const resolveShare = async (shareId) => {
+    const res = await fetch(`${API_URL}/resolve-share`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shareId })
+    });
+    if (!res.ok) throw new Error('Failed to resolve share');
+    return true;
+};
