@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import Layout from './components/Layout';
 import { initDB } from './services/db';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -33,6 +34,7 @@ const AppContent = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
 
       <Route path="/" element={
         <ProtectedRoute>

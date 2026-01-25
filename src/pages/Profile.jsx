@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { updateProfile } from 'firebase/auth';
-import { User, LogOut, Check, X, Camera, Settings, Moon, Sun, Globe } from 'lucide-react';
+import { User, LogOut, Check, X, Camera, Settings, Moon, Sun, Globe, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 
@@ -160,6 +160,14 @@ const Profile = () => {
                     >
                         {theme === 'dark' ? 'Dark' : 'Light'}
                     </button>
+                </div>
+
+                <div
+                    onClick={() => window.location.href = '/privacy'}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.5rem 0', color: 'var(--text-secondary)' }}
+                >
+                    <Shield size={20} color="var(--text-muted)" />
+                    <span>Privacy Policy</span>
                 </div>
             </div>
 

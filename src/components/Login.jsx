@@ -45,7 +45,7 @@ export default function Login() {
 
 
     return (
-        <div className="flex-center" style={{ minHeight: '100vh', padding: '1rem' }}>
+        <div className="flex-center flex-col" style={{ minHeight: '100vh', padding: '1rem' }}>
             <div className="glass-card" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
                 <div className="flex-col flex-center fade-in" style={{ marginBottom: '2rem' }}>
                     <div style={{
@@ -127,6 +127,10 @@ export default function Login() {
                     </button>
                 </p>
             </div>
+
+            <a href="/privacy" style={{ marginTop: '1rem', color: 'var(--text-muted)', fontSize: '0.8rem', textDecoration: 'none', opacity: 0.8 }}>
+                Privacy Policy
+            </a>
         </div>
     );
 }
