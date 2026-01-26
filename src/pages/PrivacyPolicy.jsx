@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Shield, Lock, Eye, FileText } from 'lucide-react';
+import { ArrowLeft, Shield, Lock, Eye, FileText, Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const PrivacyPolicy = () => {
     const navigate = useNavigate();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     return (
         <div className="flex-col flex-center" style={{ minHeight: '100vh', padding: '1rem', paddingBottom: '5rem' }}>
             <div className="glass-card" style={{ maxWidth: '800px', width: '100%', padding: '2rem' }}>
@@ -23,6 +23,18 @@ const PrivacyPolicy = () => {
                         <h1 className="text-gradient" style={{ margin: 0, fontSize: '1.8rem' }}>{t('privacy.title')}</h1>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>{t('privacy.lastUpdated')}: {new Date().toLocaleDateString()}</p>
                     </div>
+                </div>
+
+                {/* Language Toggle */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+                    <button
+                        onClick={() => i18n.changeLanguage(i18n.language === 'en' ? 'es' : 'en')}
+                        className="btn-secondary"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem' }}
+                    >
+                        <Globe size={18} />
+                        {i18n.language === 'en' ? 'Español' : 'English'}
+                    </button>
                 </div>
 
                 {/* Content */}
@@ -72,12 +84,6 @@ const PrivacyPolicy = () => {
                         </h3>
                         <p>{t('privacy.contact.content')}</p>
                     </section>
-                </div>
-
-                <div style={{ marginTop: '2rem', borderTop: '1px solid var(--glass-border)', paddingTop: '1rem', textAlign: 'center' }}>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                        {t('privacy.disclaimer')}
-                    </p>
                 </div>
 
             </div>
