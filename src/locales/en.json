@@ -221,7 +221,7 @@
         },
         "deletion": {
             "title": "Account & Data Deletion",
-            "content": "You have the right to request the complete deletion of your account and all associated data. To do so, please send an email to gymcontrolinfo@gmail.com with the subject 'Account Deletion Request'. We will process your request within 30 days."
+            "content": "You have the right to request the complete deletion of your account OR specific data (such as workout history, profile images) without deleting your account. To do so, please send an email to gymcontrolinfo@gmail.com with the subject 'Data Deletion Request'. Specify which data you wish to remove. We will process your request within 30 days and the data will be permanently wiped from our servers."
         },
         "disclaimer": "This is a generic privacy policy template. Please consult with a legal professional to ensure compliance with local laws and regulations."
     }
