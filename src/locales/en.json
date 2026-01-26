@@ -219,6 +219,10 @@
             "title": "Contact Us",
             "content": "If you have any questions about this Privacy Policy, please contact us at gymcontrolinfo@gmail.com."
         },
+        "deletion": {
+            "title": "Account & Data Deletion",
+            "content": "You have the right to request the complete deletion of your account and all associated data. To do so, please send an email to gymcontrolinfo@gmail.com with the subject 'Account Deletion Request'. We will process your request within 30 days."
+        },
         "disclaimer": "This is a generic privacy policy template. Please consult with a legal professional to ensure compliance with local laws and regulations."
     }
 }

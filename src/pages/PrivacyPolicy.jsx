@@ -84,6 +84,13 @@ const PrivacyPolicy = () => {
                         </h3>
                         <p>{t('privacy.contact.content')}</p>
                     </section>
+
+                    <section id="deletion" style={{ padding: '1rem', background: 'rgba(255, 0, 0, 0.05)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255, 0, 0, 0.1)' }}>
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--accent-primary)' }}>
+                            <Shield size={20} className="text-red-400" /> {t('privacy.deletion.title')}
+                        </h3>
+                        <p>{t('privacy.deletion.content')}</p>
+                    </section>
                 </div>
 
             </div>

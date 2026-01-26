@@ -219,6 +219,10 @@
             "title": "Contáctanos",
             "content": "Si tienes alguna pregunta sobre esta Política de Privacidad, por favor contáctanos en gymcontrolinfo@gmail.com."
         },
+        "deletion": {
+            "title": "Eliminación de Cuenta y Datos",
+            "content": "Tienes derecho a solicitar la eliminación completa de tu cuenta y de todos los datos asociados. Para hacerlo, envía un correo electrónico a gymcontrolinfo@gmail.com con el asunto 'Solicitud de Eliminación de Cuenta'. Procesaremos tu solicitud en un plazo de 30 días."
+        },
         "disclaimer": "Esta es una plantilla de política de privacidad genérica. Por favor consulta con un profesional legal para asegurar el cumplimiento con las leyes y regulaciones locales."
     }
 }
