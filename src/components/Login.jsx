@@ -73,7 +73,7 @@ export default function Login() {
                         marginBottom: '1rem',
                         boxShadow: 'var(--shadow-glow)'
                     }}>
-                        <Dumbbell size={32} color="white" />
+                        <img src="/favicon.png" alt="Logo" style={{ width: '32px', height: '32px' }} />
                     </div>
                     <h2 className="text-gradient" style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '0.5rem' }}>
                         {isSignup ? t('auth.createAccount') : t('auth.welcomeBack')}

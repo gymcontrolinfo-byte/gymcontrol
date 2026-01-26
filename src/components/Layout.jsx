@@ -16,8 +16,8 @@ const Layout = () => {
             {/* Top Bar - Mobile Only / Branding */}
             <header className="glass-header container flex-center" style={{ justifyContent: 'space-between', padding: '1rem' }}>
                 <div className="flex-center" style={{ gap: '0.5rem' }}>
-                    <div style={{ background: 'var(--accent-primary)', padding: '0.4rem', borderRadius: '0.5rem' }}>
-                        <Dumbbell size={24} color="white" />
+                    <div style={{ background: 'var(--accent-primary)', padding: '0.4rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <img src="/favicon.png" alt="Logo" style={{ width: '24px', height: '24px' }} />
                     </div>
                     <span className="text-gradient" style={{ fontWeight: 800, fontSize: '1.5rem', letterSpacing: '-1px' }}>{t('common.gymPro')}</span>
                 </div>
