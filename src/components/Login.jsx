@@ -1,5 +1,7 @@
+
 import React, { useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 import { Dumbbell, Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +10,7 @@ import { checkWhitelist } from '../services/db';
 export default function Login() {
     const emailRef = useRef();
     const passwordRef = useRef();
-    const { login, signup, loginWithGoogle } = useAuth();
+    const { login, signup, loginWithGoogle, logout } = useAuth();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [isSignup, setIsSignup] = useState(false);
@@ -22,22 +24,34 @@ export default function Login() {
             setError('');
             setLoading(true);
             if (isSignup) {
-                // Enforce Whitelist
-                const email = emailRef.current.value.trim();
-                const isAllowed = await checkWhitelist(email);
+                // Enforce Whitelist for Signup (Check if email is pre-approved)
+                // Note: user is NOT logged in here, so this check will fail if Firestore rules require Auth.
+                // WE SHOULD REMOVE THIS PRE-CHECK if rules require auth, or allow public read (not recommended).
+                // BETTER: Signup -> Check -> If fail, delete user/logout.
+                // BUT current logic for signup: createUserWithEmailAndPassword logs them in.
 
-                if (!isAllowed) {
-                    throw new Error("Access Denied: You must be invited to join this app.");
-                }
-
-                await signup(email, passwordRef.current.value);
+                // Let's rely on post-creation check for both.
+                await signup(emailRef.current.value, passwordRef.current.value);
             } else {
                 await login(emailRef.current.value, passwordRef.current.value);
             }
+
+            // Common Check for both Login and Signup
+            // User is now logged in, so we can read the whitelist
+            const email = emailRef.current.value.trim();
+            const { allowed } = await checkWhitelist(email);
+
+            if (!allowed) {
+                await logout();
+                throw new Error(t('auth.accessDenied'));
+            }
+
             navigate('/');
         } catch (err) {
             console.error(err);
-            setError(isSignup ? t('auth.failedSignup') : t('auth.failedLogin'));
+            // Sign out if we ended up in a weird state
+            if (auth.currentUser) await logout();
+            setError(err.message || (isSignup ? t('auth.failedSignup') : t('auth.failedLogin')));
         }
         setLoading(false);
     }

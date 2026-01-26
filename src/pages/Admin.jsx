@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { addToWhitelist, getWhitelist, removeFromWhitelist, ADMIN_EMAIL } from '../services/db';
+import { addToWhitelist, getWhitelist, removeFromWhitelist, updateUserRole, ADMIN_EMAIL } from '../services/db';
 import { Navigate } from 'react-router-dom';
-import { Trash2, UserPlus, Shield } from 'lucide-react';
+import { Trash2, UserPlus, Shield, UserCog, Check } from 'lucide-react';
 
 const Admin = () => {
-    const { currentUser } = useAuth();
+    const { currentUser, isAdmin } = useAuth();
     const [whitelist, setWhitelist] = useState([]);
     const [newEmail, setNewEmail] = useState('');
     const [loading, setLoading] = useState(true);
@@ -36,8 +36,14 @@ const Admin = () => {
         }
     };
 
+    const toggleRole = async (user) => {
+        const newRole = user.role === 'admin' ? 'user' : 'admin';
+        await updateUserRole(user.id, newRole);
+        loadWhitelist();
+    };
+
     // Protection
-    if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+    if (!currentUser || !isAdmin) {
         return <Navigate to="/" />;
     }
 
@@ -48,8 +54,8 @@ const Admin = () => {
                     <Shield size={32} color="white" />
                 </div>
                 <div>
-                    <h1 className="text-gradient">Admin Panel</h1>
-                    <p style={{ color: 'var(--text-secondary)' }}>Manage User Whitelist</p>
+                    <h1 className="text-gradient">Profiles Manager</h1>
+                    <p style={{ color: 'var(--text-secondary)' }}>Manage User Access & Roles</p>
                 </div>
             </div>
 
@@ -90,19 +96,47 @@ const Admin = () => {
                                 borderBottom: '1px solid var(--glass-border)',
                                 display: 'flex',
                                 justifyContent: 'space-between',
-                                alignItems: 'center'
+                                alignItems: 'center',
+                                gap: '1rem'
                             }}>
-                                <span style={{ fontWeight: 500 }}>{user.email}</span>
-                                <button
-                                    onClick={() => handleDelete(user.id)}
-                                    style={{
-                                        background: 'none', border: 'none',
-                                        color: 'var(--accent-danger)', cursor: 'pointer',
-                                        padding: '0.5rem'
-                                    }}
-                                >
-                                    <Trash2 size={18} />
-                                </button>
+                                <div className="flex-col">
+                                    <span style={{ fontWeight: 500 }}>{user.email}</span>
+                                    <span style={{ fontSize: '0.8rem', color: user.role === 'admin' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+                                        {user.role === 'admin' ? 'Admin' : 'User'}
+                                    </span>
+                                </div>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    {user.email !== ADMIN_EMAIL && (
+                                        <button
+                                            onClick={() => toggleRole(user)}
+                                            style={{
+                                                background: user.role === 'admin' ? 'var(--accent-primary)' : 'rgba(255,255,255,0.05)',
+                                                border: '1px solid var(--glass-border)',
+                                                color: 'white',
+                                                cursor: 'pointer',
+                                                padding: '0.5rem',
+                                                borderRadius: '4px',
+                                                fontSize: '0.8rem',
+                                                display: 'flex', alignItems: 'center', gap: '0.4rem'
+                                            }}
+                                            title={user.role === 'admin' ? "Demote to User" : "Promote to Admin"}
+                                        >
+                                            <UserCog size={16} />
+                                            {user.role === 'admin' ? 'Admin' : 'Make Admin'}
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => handleDelete(user.id)}
+                                        style={{
+                                            background: 'none', border: 'none',
+                                            color: 'var(--accent-danger)', cursor: 'pointer',
+                                            padding: '0.5rem'
+                                        }}
+                                        title="Remove User"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>

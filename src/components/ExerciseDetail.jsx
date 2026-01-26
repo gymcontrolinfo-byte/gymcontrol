@@ -1,29 +1,65 @@
 
 import React, { useState, useEffect } from 'react';
 import { saveExercise } from '../services/db';
-import { X, Save, FileText } from 'lucide-react';
+import { X, Save, FileText, Pencil } from 'lucide-react';
+import ExerciseForm from './ExerciseForm';
 
 const ExerciseDetail = ({ exercise, onClose }) => {
     const [notes, setNotes] = useState(exercise.notes || '');
     const [isSaving, setIsSaving] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    // Local exercise state to update view immediately after edit
+    const [currentExercise, setCurrentExercise] = useState(exercise);
+
+    useEffect(() => {
+        setCurrentExercise(exercise);
+        setNotes(exercise.notes || '');
+    }, [exercise]);
 
     const handleSaveNotes = () => {
         setIsSaving(true);
-        const updated = { ...exercise, notes };
+        const updated = { ...currentExercise, notes };
         saveExercise(updated);
+        setCurrentExercise(updated);
         // Simulate small delay for feedback
         setTimeout(() => setIsSaving(false), 500);
     };
+
+    const handleUpdateExercise = (updatedExercise) => {
+        // saveExercise is already called inside ExerciseForm, but we might want to ensure we update local state
+        // Actually ExerciseForm calls saveExercise internally and then onSave.
+        // We just need to update our local view.
+        setCurrentExercise(updatedExercise);
+        setIsEditing(false);
+    };
+
+    if (isEditing) {
+        return (
+            <div style={{ padding: '1rem', height: '100%', overflowY: 'auto' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h2 style={{ fontSize: '1.2rem', margin: 0 }}>Edit Exercise</h2>
+                    <button onClick={() => setIsEditing(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                        <X size={24} />
+                    </button>
+                </div>
+                <ExerciseForm
+                    existingExercise={currentExercise}
+                    onSave={handleUpdateExercise}
+                    onCancel={() => setIsEditing(false)}
+                />
+            </div>
+        );
+    }
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             {/* Video Player or Placeholder */}
             <div style={{ position: 'relative', paddingTop: '56.25%', background: '#000', flexShrink: 0 }}>
-                {exercise.videoId ? (
+                {currentExercise.videoId ? (
                     <iframe
                         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                        src={`https://www.youtube.com/embed/${exercise.videoId}?autoplay=1`}
-                        title={exercise.name}
+                        src={`https://www.youtube.com/embed/${currentExercise.videoId}?autoplay=1`}
+                        title={currentExercise.name}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                     ></iframe>
@@ -46,10 +82,23 @@ const ExerciseDetail = ({ exercise, onClose }) => {
 
                 {/* Header */}
                 <div>
-                    <h2 style={{ fontSize: '1.2rem', margin: 0 }}>{exercise.name}</h2>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <h2 style={{ fontSize: '1.2rem', margin: 0, flex: 1 }}>{currentExercise.name}</h2>
+                        <button
+                            onClick={() => setIsEditing(true)}
+                            className="btn-icon"
+                            style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', padding: '0.5rem', cursor: 'pointer' }}
+                        >
+                            <Pencil size={18} />
+                        </button>
+                    </div>
+
                     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                        <span className="badge" style={{ background: 'var(--accent-secondary)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.7rem' }}>{exercise.muscle}</span>
-                        <span className="badge" style={{ background: 'rgba(255,255,255,0.1)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.7rem' }}>{exercise.type}</span>
+                        <span className="badge" style={{ background: 'var(--accent-secondary)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.7rem' }}>{currentExercise.muscle}</span>
+                        <span className="badge" style={{ background: 'rgba(255,255,255,0.1)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.7rem' }}>{currentExercise.type}</span>
+                        {currentExercise.subMuscle && (
+                            <span className="badge" style={{ background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.7rem', border: '1px solid var(--glass-border)' }}>{currentExercise.subMuscle}</span>
+                        )}
                     </div>
                 </div>
 

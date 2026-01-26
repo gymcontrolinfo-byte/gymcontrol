@@ -3,9 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { getExercises, saveSession, getMuscles } from '../services/db';
 import { Plus, Trash2, Save, Search, Filter, Play, Link, Unlink } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 // import Modal from './Modal'; // Import generic Modal if needed, or inline a simple video modal
 
 const SessionForm = ({ onSave, onCancel, initialData }) => {
+    const { t } = useTranslation();
     const [name, setName] = useState('');
     const [selectedExercises, setSelectedExercises] = useState([]); // { exerciseId, sets, reps, weight, videoId, thumbnail }
     const [availableExercises, setAvailableExercises] = useState([]);
@@ -13,6 +15,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
     const [isAdding, setIsAdding] = useState(false);
     const [search, setSearch] = useState('');
     const [muscleFilter, setMuscleFilter] = useState('');
+    const [subMuscleFilter, setSubMuscleFilter] = useState('');
     const [selectedForGroup, setSelectedForGroup] = useState([]); // Array of indices selected for grouping
 
     // Video Preview State
@@ -58,6 +61,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
         setIsAdding(false);
         setSearch('');
         setMuscleFilter('');
+        setSubMuscleFilter('');
     };
 
     const handleRemoveExercise = (idx) => {
@@ -106,8 +110,8 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!name.trim()) return alert('Session Name Required');
-        if (selectedExercises.length === 0) return alert('Add at least one exercise');
+        if (!name.trim()) return alert(t('planner.errorName'));
+        if (selectedExercises.length === 0) return alert(t('planner.errorExercise'));
 
         const session = {
             id: initialData ? initialData.id : uuidv4(), // Preserve ID if editing
@@ -122,7 +126,8 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
     const filteredAvailable = availableExercises.filter(ex => {
         const matchesSearch = ex.name.toLowerCase().includes(search.toLowerCase());
         const matchesMuscle = muscleFilter ? ex.muscle === muscleFilter : true;
-        return matchesSearch && matchesMuscle;
+        const matchesSubMuscle = subMuscleFilter ? ex.subMuscle === subMuscleFilter : true;
+        return matchesSearch && matchesMuscle && matchesSubMuscle;
     });
 
     const handlePreview = (e, videoId) => {
@@ -130,11 +135,14 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
         setPreviewVideoId(videoId);
     };
 
+    const allMuscles = getMuscles();
+    const subOptions = muscleFilter ? (allMuscles[muscleFilter] || []) : [];
+
     return (
         <form onSubmit={handleSubmit} className="flex-col" style={{ gap: '1rem', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
 
             <div className="flex-col" style={{ gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Session Name</label>
+                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t('planner.sessionName')}</label>
                 <input
                     type="text"
                     value={name}
@@ -154,7 +162,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
 
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: '200px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h4 style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Exercises ({selectedExercises.length})</h4>
+                    <h4 style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{t('planner.exercisesCount', { count: selectedExercises.length })}</h4>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                         {selectedForGroup.length >= 2 && (
                             <button
@@ -163,7 +171,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                 className="btn btn-primary"
                                 style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', background: 'var(--accent-primary)' }}
                             >
-                                <Link size={14} /> Group
+                                <Link size={14} /> {t('planner.group')}
                             </button>
                         )}
                         <button
@@ -172,7 +180,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                             className="btn btn-secondary"
                             style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
                         >
-                            <Plus size={14} /> Add Exercise
+                            <Plus size={14} /> {t('planner.addExercise')}
                         </button>
                     </div>
                 </div>
@@ -209,7 +217,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                             <Link size={16} /> SUPERSET / BISERIES
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Rounds:</span>
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t('planner.rounds')}:</span>
                                             <input
                                                 type="number"
                                                 value={rounds}
@@ -240,7 +248,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                                 style={{ marginLeft: '0.5rem', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
                                                 title="Ungroup"
                                             >
-                                                <Unlink size={14} /> Ungroup
+                                                <Unlink size={14} /> {t('planner.ungroup')}
                                             </button>
                                         </div>
                                     </div>
@@ -278,11 +286,11 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
 
                                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                                                         <div className="flex-col" style={{ minWidth: 0 }}>
-                                                            <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Reps</label>
+                                                            <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('planner.reps')}</label>
                                                             <input type="number" value={subEx.reps} onChange={(e) => handleUpdateDetails(globalIdx, 'reps', e.target.value === '' ? '' : Number(e.target.value))} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px', width: '100%' }} />
                                                         </div>
                                                         <div className="flex-col" style={{ minWidth: 0 }}>
-                                                            <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Kg</label>
+                                                            <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('planner.kg')}</label>
                                                             <input type="number" value={subEx.weight} onChange={(e) => handleUpdateDetails(globalIdx, 'weight', e.target.value === '' ? '' : Number(e.target.value))} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px', width: '100%' }} />
                                                         </div>
                                                     </div>
@@ -332,15 +340,15 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                     </div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
                                         <div className="flex-col" style={{ minWidth: 0 }}>
-                                            <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Sets</label>
+                                            <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('planner.sets')}</label>
                                             <input type="number" value={item.sets} onChange={(e) => handleUpdateDetails(i, 'sets', e.target.value === '' ? '' : Number(e.target.value))} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px', width: '100%' }} />
                                         </div>
                                         <div className="flex-col" style={{ minWidth: 0 }}>
-                                            <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Reps</label>
+                                            <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('planner.reps')}</label>
                                             <input type="number" value={item.reps} onChange={(e) => handleUpdateDetails(i, 'reps', e.target.value === '' ? '' : Number(e.target.value))} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px', width: '100%' }} />
                                         </div>
                                         <div className="flex-col" style={{ minWidth: 0 }}>
-                                            <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Kg</label>
+                                            <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('planner.kg')}</label>
                                             <input type="number" value={item.weight} onChange={(e) => handleUpdateDetails(i, 'weight', e.target.value === '' ? '' : Number(e.target.value))} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px', width: '100%' }} />
                                         </div>
                                     </div>
@@ -369,19 +377,19 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                     type="text"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Search..."
+                                    placeholder={t('library.searchPlaceholder')}
                                     style={{ width: '100%', padding: '0.5rem', paddingLeft: '2rem', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'var(--bg-primary)', color: 'white' }}
                                 />
                                 <Search size={14} style={{ position: 'absolute', left: '0.6rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                             </div>
-                            <button type="button" onClick={() => setIsAdding(false)} className="btn btn-secondary">Cancel</button>
+                            <button type="button" onClick={() => setIsAdding(false)} className="btn btn-secondary">{t('common.cancel')}</button>
                         </div>
 
                         {/* Muscle Filter Scroll */}
                         <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none' }}>
                             <button
                                 type="button"
-                                onClick={() => setMuscleFilter('')}
+                                onClick={() => { setMuscleFilter(''); setSubMuscleFilter(''); }}
                                 style={{
                                     padding: '0.3rem 0.8rem',
                                     borderRadius: '20px',
@@ -392,13 +400,13 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                     whiteSpace: 'nowrap'
                                 }}
                             >
-                                All
+                                {t('planner.all')}
                             </button>
                             {muscles.map(m => (
                                 <button
                                     key={m}
                                     type="button"
-                                    onClick={() => setMuscleFilter(m)}
+                                    onClick={() => { setMuscleFilter(m); setSubMuscleFilter(''); }}
                                     style={{
                                         padding: '0.3rem 0.8rem',
                                         borderRadius: '20px',
@@ -413,6 +421,45 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                 </button>
                             ))}
                         </div>
+
+                        {/* Sub-Muscle Filter Scroll (Conditional) */}
+                        {subOptions.length > 0 && (
+                            <div className="fade-in" style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none', marginLeft: '0.5rem' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setSubMuscleFilter('')}
+                                    style={{
+                                        padding: '0.2rem 0.6rem',
+                                        borderRadius: '16px',
+                                        border: '1px solid var(--glass-border)',
+                                        background: subMuscleFilter === '' ? 'var(--accent-secondary)' : 'rgba(255,255,255,0.05)',
+                                        color: 'white',
+                                        fontSize: '0.75rem',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    All {muscleFilter}
+                                </button>
+                                {subOptions.map(sub => (
+                                    <button
+                                        key={sub}
+                                        type="button"
+                                        onClick={() => setSubMuscleFilter(sub)}
+                                        style={{
+                                            padding: '0.2rem 0.6rem',
+                                            borderRadius: '16px',
+                                            border: '1px solid var(--glass-border)',
+                                            background: subMuscleFilter === sub ? 'var(--accent-secondary)' : 'rgba(255,255,255,0.05)',
+                                            color: 'white',
+                                            fontSize: '0.75rem',
+                                            whiteSpace: 'nowrap'
+                                        }}
+                                    >
+                                        {sub}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -447,7 +494,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                         ))}
                         {filteredAvailable.length === 0 && (
                             <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                                No exercises found.
+                                {t('library.noExercises')}
                             </div>
                         )}
                     </div>
@@ -455,9 +502,10 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
             )}
 
             <div style={{ display: 'flex', gap: '1rem', marginTop: 'auto', paddingTop: '1rem' }}>
-                <button type="button" onClick={onCancel} className="btn btn-secondary" style={{ flex: 1 }}>Cancel</button>
+                <button type="button" onClick={onCancel} className="btn btn-secondary" style={{ flex: 1 }}>{t('common.cancel')}</button>
                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                    <Save size={18} /> {initialData ? 'Update Plan' : 'Save Plan'}
+                    <Save size={18} /> {initialData ? t('common.save') : t('common.save')}
+                    {/* Simplified for now, or add specific keys for Update vs Save Plan */}
                 </button>
             </div>
 
@@ -480,7 +528,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                         ></iframe>
                     </div>
                     <button style={{ marginTop: '1rem', color: 'white', background: 'transparent', border: '1px solid white', padding: '0.5rem 1rem', borderRadius: '4px' }} onClick={() => setPreviewVideoId(null)}>
-                        Close Preview
+                        {t('common.close')}
                     </button>
                 </div>
             )}

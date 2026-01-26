@@ -27,7 +27,7 @@ const Stats = () => {
     };
 
     const formatDate = (isoString) => {
-        return new Date(isoString).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        return new Date(isoString).toLocaleDateString('es-MX', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     };
 
     const formatDuration = (seconds) => {

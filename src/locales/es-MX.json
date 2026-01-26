@@ -9,7 +9,26 @@
         "loading": "Cargando...",
         "confirmDelete": "¿Estás seguro?",
         "yes": "Sí",
-        "no": "No"
+        "no": "No",
+        "adminPanel": "Panel de Admin",
+        "close": "Cerrar"
+    },
+    "exerciseForm": {
+        "youtubeLink": "Enlace de YouTube",
+        "pasteUrl": "Pegar URL de YouTube...",
+        "variants": "Variantes (Alternativas)",
+        "searchVariants": "Buscar ejercicios para vincular...",
+        "name": "Nombre del Ejercicio",
+        "target": "Objetivo",
+        "type": "Tipo",
+        "types": {
+            "weight": "Peso",
+            "bodyweight": "Peso Corporal",
+            "cardio": "Cardio"
+        },
+        "specificTarget": "Objetivo Específico (Opcional)",
+        "general": "General",
+        "errorTitle": "Por favor ingresa un título"
     },
     "nav": {
         "stats": "Estadísticas",
@@ -69,7 +88,19 @@
         "startWorkout": "Iniciar Entrenamiento",
         "editPlan": "Editar Plan de Entrenamiento",
         "newPlan": "Nuevo Plan de Entrenamiento",
-        "exercises": "Ejercicios"
+        "exercises": "Ejercicios",
+        "sessionName": "Nombre de la Sesión",
+        "exercisesCount": "Ejercicios ({{count}})",
+        "group": "Agrupar",
+        "addExercise": "Añadir Ejercicio",
+        "rounds": "Rondas",
+        "ungroup": "Desagrupar",
+        "sets": "Series",
+        "reps": "Reps",
+        "kg": "Kg",
+        "all": "Todos",
+        "errorName": "Nombre de sesión requerido",
+        "errorExercise": "Añade al menos un ejercicio"
     },
     "stats": {
         "title": "Progreso",
@@ -145,5 +176,49 @@
                 "desc": "Los músculos crecen mientras duermes, no mientras entrenas. Apunta a 7-9 horas de sueño y come suficiente proteína."
             }
         }
+    },
+    "privacy": {
+        "title": "Política de Privacidad",
+        "lastUpdated": "Última Actualización",
+        "intro": {
+            "title": "Introducción",
+            "content": "Valoramos tu privacidad y estamos comprometidos a proteger tus datos personales. Esta política de privacidad explica cómo recopilamos, usamos y compartimos tu información cuando usas nuestra aplicación."
+        },
+        "collection": {
+            "title": "Información que Recopilamos",
+            "items": {
+                "account": {
+                    "title": "Información de la Cuenta",
+                    "desc": "Nombre, correo electrónico y foto de perfil (si se proporciona)."
+                },
+                "usage": {
+                    "title": "Datos de Uso",
+                    "desc": "Registros de entrenamiento, ejercicios creados y preferencias de la aplicación."
+                },
+                "device": {
+                    "title": "Datos del Dispositivo",
+                    "desc": "Modelo, versión del sistema operativo y otros detalles técnicos para mejorar el rendimiento de la aplicación."
+                }
+            }
+        },
+        "usage": {
+            "title": "Cómo Usamos tus Datos",
+            "intro": "Usamos tus datos para:",
+            "items": {
+                "provide": "Proporcionar y mantener la aplicación.",
+                "track": "Seguir tu progreso de entrenamiento y generar estadísticas.",
+                "improve": "Mejorar nuestros servicios y desarrollar nuevas funciones.",
+                "respond": "Responder a tus comentarios y solicitudes de soporte."
+            }
+        },
+        "security": {
+            "title": "Seguridad de Datos",
+            "content": "Implementamos medidas de seguridad apropiadas para proteger tu información personal. Sin embargo, ningún método de transmisión por Internet o almacenamiento electrónico es 100% seguro, por lo que no podemos garantizar una seguridad absoluta."
+        },
+        "contact": {
+            "title": "Contáctanos",
+            "content": "Si tienes alguna pregunta sobre esta Política de Privacidad, por favor contáctanos en gymcontrolinfo@gmail.com."
+        },
+        "disclaimer": "Esta es una plantilla de política de privacidad genérica. Por favor consulta con un profesional legal para asegurar el cumplimiento con las leyes y regulaciones locales."
     }
 }

@@ -158,7 +158,7 @@ const Profile = () => {
                         className="btn-secondary"
                         style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', width: '80px' }}
                     >
-                        {theme === 'dark' ? 'Dark' : 'Light'}
+                        {theme.charAt(0).toUpperCase() + theme.slice(1)}
                     </button>
                 </div>
 

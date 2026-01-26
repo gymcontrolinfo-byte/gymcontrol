@@ -19,7 +19,12 @@ export const validateYoutubeUrl = (url) => {
 
 export const getVideoTitle = async (url) => {
     try {
-        const response = await fetch(`https://noembed.com/embed?url=${url}`);
+        // Normalize URL to standard watch format for noembed compatibility
+        const videoId = getYoutubeId(url);
+        if (!videoId) return null;
+
+        const standardUrl = `https://www.youtube.com/watch?v=${videoId}`;
+        const response = await fetch(`https://noembed.com/embed?url=${standardUrl}`);
         const data = await response.json();
         return data.title || null;
     } catch (e) {

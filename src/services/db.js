@@ -16,13 +16,39 @@ import {
 export const ADMIN_EMAIL = 'gymcontrolinfo@gmail.com';
 
 // Whitelist Logic
+// Whitelist Logic
 export const checkWhitelist = async (email) => {
     // Admin is always allowed
-    if (email === ADMIN_EMAIL) return true;
+    if (email === ADMIN_EMAIL) return { allowed: true, role: 'admin' };
 
+    // 1. Try direct lookup (New format: ID = email)
+    const docRef = doc(db, 'whitelist', email);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        return { allowed: true, role: data.role || 'user' };
+    }
+
+    // 2. Fallback: Query by field (Old format: Random ID)
     const q = query(collection(db, 'whitelist'), where('email', '==', email));
     const snapshot = await getDocs(q);
-    return !snapshot.empty;
+
+    if (snapshot.empty) return { allowed: false, role: null };
+
+    const data = snapshot.docs[0].data();
+    return { allowed: true, role: data.role || 'user' };
+};
+
+export const checkIsAdmin = async (email) => {
+    console.log('[DEBUG] checkIsAdmin for:', email, '| Super Admin:', ADMIN_EMAIL);
+    if (email === ADMIN_EMAIL) {
+        console.log('[DEBUG] Match! Returning true.');
+        return true;
+    }
+    const { allowed, role } = await checkWhitelist(email);
+    console.log('[DEBUG] Whitelist Result:', { allowed, role });
+    return allowed && role === 'admin';
 };
 
 export const getWhitelist = async () => {
@@ -30,11 +56,19 @@ export const getWhitelist = async () => {
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
-export const addToWhitelist = async (email) => {
-    // Check if exists first to avoid duplicates
-    const exists = await checkWhitelist(email);
-    if (exists) return;
-    await addDoc(collection(db, 'whitelist'), { email, createdAt: new Date().toISOString() });
+export const addToWhitelist = async (email, role = 'user') => {
+    // Use Email as Document ID for security rules lookup
+    // This enables the security rule: match /whitelist/{email}
+    await setDoc(doc(db, 'whitelist', email), {
+        email,
+        role,
+        createdAt: new Date().toISOString()
+    });
+};
+
+export const updateUserRole = async (id, newRole) => {
+    const ref = doc(db, 'whitelist', id);
+    await setDoc(ref, { role: newRole }, { merge: true });
 };
 
 export const removeFromWhitelist = async (id) => {

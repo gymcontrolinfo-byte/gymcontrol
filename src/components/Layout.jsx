@@ -9,7 +9,7 @@ import '../index.css';
 
 const Layout = () => {
     const { t } = useTranslation();
-    const { currentUser } = useAuth();
+    const { currentUser, isAdmin } = useAuth();
 
     return (
         <div className="layout">
@@ -55,7 +55,7 @@ const Layout = () => {
             </nav>
 
             {/* Admin Floating Link */}
-            {currentUser?.email === ADMIN_EMAIL && (
+            {currentUser && isAdmin && (
                 <div style={{ position: 'fixed', bottom: '5rem', right: '1rem', zIndex: 101 }}>
                     <NavLink to="/admin" className="btn btn-primary" style={{
                         padding: '0.6rem 1rem',
@@ -63,7 +63,7 @@ const Layout = () => {
                         boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                         borderRadius: '2rem'
                     }}>
-                        <Shield size={18} style={{ marginRight: '0.5rem' }} /> Admin Panel
+                        <Shield size={18} style={{ marginRight: '0.5rem' }} /> {t('common.adminPanel')}
                     </NavLink>
                 </div>
             )}

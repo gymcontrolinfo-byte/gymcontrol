@@ -9,7 +9,26 @@
         "loading": "Loading...",
         "confirmDelete": "Are you sure?",
         "yes": "Yes",
-        "no": "No"
+        "no": "No",
+        "adminPanel": "Admin Panel",
+        "close": "Close"
+    },
+    "exerciseForm": {
+        "youtubeLink": "YouTube Link",
+        "pasteUrl": "Paste YouTube Share URL...",
+        "variants": "Variants (Alternatives)",
+        "searchVariants": "Search exercises to link...",
+        "name": "Exercise Name",
+        "target": "Target",
+        "type": "Type",
+        "types": {
+            "weight": "Weight",
+            "bodyweight": "Bodyweight",
+            "cardio": "Cardio"
+        },
+        "specificTarget": "Specific Target (Optional)",
+        "general": "General",
+        "errorTitle": "Please enter a title"
     },
     "nav": {
         "stats": "Stats",
@@ -69,7 +88,19 @@
         "startWorkout": "Start Workout",
         "editPlan": "Edit Workout Plan",
         "newPlan": "New Workout Plan",
-        "exercises": "Exercises"
+        "exercises": "Exercises",
+        "sessionName": "Session Name",
+        "exercisesCount": "Exercises ({{count}})",
+        "group": "Group",
+        "addExercise": "Add Exercise",
+        "rounds": "Rounds",
+        "ungroup": "Ungroup",
+        "sets": "Sets",
+        "reps": "Reps",
+        "kg": "Kg",
+        "all": "All",
+        "errorName": "Session Name Required",
+        "errorExercise": "Add at least one exercise"
     },
     "stats": {
         "title": "Progress",
@@ -145,5 +176,49 @@
                 "desc": "Muscles grow while you sleep, not while you train. Aim for 7-9 hours of sleep and eat enough protein (1.6g-2.2g per kg of bodyweight)."
             }
         }
+    },
+    "privacy": {
+        "title": "Privacy Policy",
+        "lastUpdated": "Last Updated",
+        "intro": {
+            "title": "Introduction",
+            "content": "We value your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and share your information when you use our application."
+        },
+        "collection": {
+            "title": "Information We Collect",
+            "items": {
+                "account": {
+                    "title": "Account Information",
+                    "desc": "Name, email address, and profile picture (if provided)."
+                },
+                "usage": {
+                    "title": "Usage Data",
+                    "desc": "Workout logs, exercises created, and app preferences."
+                },
+                "device": {
+                    "title": "Device Data",
+                    "desc": "Model, OS version, and other technical details to improve app performance."
+                }
+            }
+        },
+        "usage": {
+            "title": "How We Use Your Data",
+            "intro": "We use your data to:",
+            "items": {
+                "provide": "Provide and maintain the application.",
+                "track": "Track your workout progress and generate statistics.",
+                "improve": "Improve our services and develop new features.",
+                "respond": "Respond to your comments and support requests."
+            }
+        },
+        "security": {
+            "title": "Data Security",
+            "content": "We implement appropriate security measures to protect your personal information. However, no method of transmission over the Internet or electronic storage is 100% secure, so we cannot guarantee absolute security."
+        },
+        "contact": {
+            "title": "Contact Us",
+            "content": "If you have any questions about this Privacy Policy, please contact us at gymcontrolinfo@gmail.com."
+        },
+        "disclaimer": "This is a generic privacy policy template. Please consult with a legal professional to ensure compliance with local laws and regulations."
     }
 }

@@ -3,19 +3,25 @@ import { getYoutubeId, getThumbnail, getVideoTitle } from '../services/youtube';
 import { v4 as uuidv4 } from 'uuid';
 import { saveExercise, getMuscles, getExercises } from '../services/db';
 import { Youtube, Save, Loader, Smile, Repeat, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const FITNESS_EMOJIS = ["💪", "🏋️‍♀️", "🏋️‍♂️", "🤸", "🧘", "🏃", "🔥", "⚡", "🛑", "🩸", "🥵", "🦵", "🍑"];
 
-const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) => {
-    const [url, setUrl] = useState(initialUrl);
-    const [title, setTitle] = useState(initialTitle);
-    const [videoId, setVideoId] = useState(getYoutubeId(initialUrl));
+const ExerciseForm = ({ onSave, onCancel, existingExercise = null, initialUrl = '', initialTitle = '' }) => {
+    const { t } = useTranslation();
+    // Determine initial values
+    const defaultUrl = existingExercise ? existingExercise.url : initialUrl;
+    const defaultTitle = existingExercise ? existingExercise.name : initialTitle;
+
+    const [url, setUrl] = useState(defaultUrl);
+    const [title, setTitle] = useState(defaultTitle);
+    const [videoId, setVideoId] = useState(getYoutubeId(defaultUrl));
     const [error, setError] = useState('');
-    const [type, setType] = useState('weight'); // weight, bodyweight, cardio
+    const [type, setType] = useState(existingExercise ? existingExercise.type : 'weight'); // weight, bodyweight, cardio
     const [isLoadingTitle, setIsLoadingTitle] = useState(false);
 
     // Variants
-    const [variants, setVariants] = useState(initialUrl.variants || []); // IDs
+    const [variants, setVariants] = useState(existingExercise ? (existingExercise.variants || []) : []); // IDs
     const [allExercises, setAllExercises] = useState([]);
     const [variantSearch, setVariantSearch] = useState('');
 
@@ -25,8 +31,8 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
 
     // Muscles
     const [allMuscles, setAllMuscles] = useState({});
-    const [muscle, setMuscle] = useState('Chest');
-    const [subMuscle, setSubMuscle] = useState('');
+    const [muscle, setMuscle] = useState(existingExercise ? existingExercise.muscle : 'Chest');
+    const [subMuscle, setSubMuscle] = useState(existingExercise ? (existingExercise.subMuscle || '') : '');
 
     useEffect(() => {
         const muscles = getMuscles();
@@ -86,13 +92,13 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!title.trim()) {
-            setError('Please enter a title');
+            setError(t('exerciseForm.errorTitle'));
             return;
         }
         // Removed strict videoID check to allow optional URL
 
         const newExercise = {
-            id: uuidv4(),
+            id: existingExercise ? existingExercise.id : uuidv4(),
             name: title,
             url: url,
             videoId: videoId || null, // Allow null
@@ -101,7 +107,7 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
             muscle: muscle,
             subMuscle: subMuscle || null,
             variants: variants,
-            createdAt: new Date().toISOString()
+            createdAt: existingExercise ? existingExercise.createdAt : new Date().toISOString()
         };
 
         saveExercise(newExercise);
@@ -131,7 +137,7 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
         <form onSubmit={handleSubmit} className="flex-col" style={{ gap: '1rem' }}>
             {/* YouTube URL Input */}
             <div className="flex-col" style={{ gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>YouTube Link</label>
+                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t('exerciseForm.youtubeLink')}</label>
                 <div style={{ position: 'relative' }}>
                     <div style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-primary)' }}>
                         <Youtube size={18} />
@@ -140,7 +146,7 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
                         type="url"
                         value={url}
                         onChange={handleUrlChange}
-                        placeholder="Paste YouTube Share URL..."
+                        placeholder={t('exerciseForm.pasteUrl')}
                         style={{
                             width: '100%',
                             padding: '0.8rem',
@@ -168,7 +174,7 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
 
             {/* Variants Section */}
             <div className="flex-col" style={{ gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Variants (Alternatives)</label>
+                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t('exerciseForm.variants')}</label>
 
                 {/* Selected Variants List */}
                 {variants.length > 0 && (
@@ -200,7 +206,7 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
                         type="text"
                         value={variantSearch}
                         onChange={(e) => setVariantSearch(e.target.value)}
-                        placeholder="Search exercises to link..."
+                        placeholder={t('exerciseForm.searchVariants')}
                         style={{
                             width: '100%',
                             padding: '0.8rem',
@@ -231,7 +237,7 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
                                 </div>
                             ))}
                             {filteredVariants.length === 0 && (
-                                <div style={{ padding: '0.8rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>No matches found</div>
+                                <div style={{ padding: '0.8rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>{t('library.noExercises')}</div>
                             )}
                         </div>
                     )}
@@ -240,7 +246,7 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
 
             {/* Title Input with Emoji Picker */}
             <div className="flex-col" style={{ gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Exercise Name</label>
+                <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t('exerciseForm.name')}</label>
                 <div style={{ position: 'relative' }} ref={emojiContainerRef}>
                     <input
                         type="text"
@@ -296,7 +302,7 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 {/* Target (Muscle) - Moves First */}
                 <div className="flex-col" style={{ gap: '0.5rem' }}>
-                    <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Target</label>
+                    <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t('exerciseForm.target')}</label>
                     <select
                         value={muscle}
                         onChange={handleMuscleChange}
@@ -317,7 +323,7 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
 
                 {/* Type - Moves Second */}
                 <div className="flex-col" style={{ gap: '0.5rem' }}>
-                    <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Type</label>
+                    <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t('exerciseForm.type')}</label>
                     <select
                         value={type}
                         onChange={(e) => setType(e.target.value)}
@@ -330,9 +336,9 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
                             color: 'white'
                         }}
                     >
-                        <option value="weight">Weight</option>
-                        <option value="bodyweight">Bodyweight</option>
-                        <option value="cardio">Cardio</option>
+                        <option value="weight">{t('exerciseForm.types.weight')}</option>
+                        <option value="bodyweight">{t('exerciseForm.types.bodyweight')}</option>
+                        <option value="cardio">{t('exerciseForm.types.cardio')}</option>
                     </select>
                 </div>
             </div>
@@ -340,7 +346,7 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
             {/* Sub Muscle Group (Conditional) */}
             {subOptions.length > 0 && (
                 <div className="flex-col" style={{ gap: '0.5rem' }}>
-                    <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Specific Target (Optional)</label>
+                    <label style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{t('exerciseForm.specificTarget')}</label>
                     <select
                         value={subMuscle}
                         onChange={(e) => setSubMuscle(e.target.value)}
@@ -353,7 +359,7 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
                             color: 'white'
                         }}
                     >
-                        <option value="">-- General {muscle} --</option>
+                        <option value="">-- {t('exerciseForm.general')} {muscle} --</option>
                         {subOptions.map(sub => (
                             <option key={sub} value={sub}>{sub}</option>
                         ))}
@@ -364,9 +370,9 @@ const ExerciseForm = ({ onSave, onCancel, initialUrl = '', initialTitle = '' }) 
             {error && <div style={{ color: 'var(--accent-danger)', fontSize: '0.9rem' }}>{error}</div>}
 
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                <button type="button" onClick={onCancel} className="btn btn-secondary" style={{ flex: 1 }}>Cancel</button>
+                <button type="button" onClick={onCancel} className="btn btn-secondary" style={{ flex: 1 }}>{t('common.cancel')}</button>
                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                    <Save size={18} /> Save
+                    <Save size={18} /> {t('common.save')}
                 </button>
             </div>
         </form>

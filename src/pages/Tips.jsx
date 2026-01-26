@@ -139,7 +139,7 @@ const Section = ({ title, icon, isOpen, onClick, children }) => (
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 cursor: 'pointer',
-                color: 'white'
+                color: 'var(--text-primary)'
             }}
         >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
