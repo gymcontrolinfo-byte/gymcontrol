@@ -4,6 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getSessions, saveLog, getExercises } from '../services/db';
 import { v4 as uuidv4 } from 'uuid';
 import { Timer, CheckCircle, ArrowLeft, Play, Save, Link, Repeat, Search, X } from 'lucide-react';
+import Modal from '../components/Modal';
+import ExerciseDetail from '../components/ExerciseDetail';
 
 const Train = () => {
     const { sessionId } = useParams();
@@ -113,6 +115,11 @@ const Train = () => {
         // Fallback: look up in allExercises
         const found = allExercises.find(e => e.id === ex.exerciseId);
         return found ? found.videoId : null;
+    };
+
+    const handleViewExercise = (sessionEx) => {
+        const fullEx = allExercises.find(e => e.id === sessionEx.exerciseId) || sessionEx;
+        setPreviewVideoId(fullEx);
     };
 
     const handleSwapClick = (idx) => {
@@ -249,7 +256,7 @@ const Train = () => {
                                                                 <span style={{ fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={subEx.name}>{subEx.name}</span>
                                                                 {vidId && (
                                                                     <button
-                                                                        onClick={() => setPreviewVideoId(vidId)}
+                                                                        onClick={() => handleViewExercise(subEx)}
                                                                         style={{ flexShrink: 0, background: 'none', border: 'none', color: 'var(--text-muted)', padding: 0, cursor: 'pointer' }}
                                                                     >
                                                                         <Play size={12} />
@@ -316,7 +323,7 @@ const Train = () => {
                                         <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{ex.name}</h3>
                                         {vidId && (
                                             <button
-                                                onClick={() => setPreviewVideoId(vidId)}
+                                                onClick={() => handleViewExercise(ex)}
                                                 style={{ background: 'none', border: 'none', color: 'var(--text-muted)', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                                                 title="Watch Video"
                                             >
@@ -407,30 +414,15 @@ const Train = () => {
                 Finish Workout
             </button>
 
-            {/* Video Modal */}
-            {
-                previewVideoId && (
-                    <div style={{
-                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                        background: 'rgba(0,0,0,0.9)', zIndex: 50,
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
-                    }} onClick={() => setPreviewVideoId(null)}>
-                        <div style={{ width: '90%', maxWidth: '500px', aspectRatio: '16/9', background: 'black' }} onClick={e => e.stopPropagation()}>
-                            <iframe
-                                width="100%"
-                                height="100%"
-                                src={`https://www.youtube.com/embed/${previewVideoId}?autoplay=1`}
-                                title="Preview"
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-                        <button style={{ marginTop: '1rem', color: 'white', background: 'transparent', border: '1px solid white', padding: '0.5rem 1rem', borderRadius: '4px' }} onClick={() => setPreviewVideoId(null)}>
-                            Close
-                        </button>
-                    </div>
+            {/* Exercise Detail Modal */}
+            <Modal isOpen={!!previewVideoId} onClose={() => setPreviewVideoId(null)} title={previewVideoId?.name || 'Exercise Detail'}>
+                {previewVideoId && (
+                    <ExerciseDetail
+                        exercise={previewVideoId}
+                        onClose={() => setPreviewVideoId(null)}
+                    />
                 )}
+            </Modal>
 
             {/* Swap Modal */}
             {swapModalOpen && (

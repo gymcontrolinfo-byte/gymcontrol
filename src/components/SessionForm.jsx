@@ -4,7 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { getExercises, saveSession, getMuscles } from '../services/db';
 import { Plus, Trash2, Save, Search, Filter, Play, Link, Unlink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-// import Modal from './Modal'; // Import generic Modal if needed, or inline a simple video modal
+import Modal from './Modal';
+import ExerciseDetail from './ExerciseDetail';
 
 const SessionForm = ({ onSave, onCancel, initialData }) => {
     const { t } = useTranslation();
@@ -130,9 +131,11 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
         return matchesSearch && matchesMuscle && matchesSubMuscle;
     });
 
-    const handlePreview = (e, videoId) => {
+    const handlePreview = (e, exercise) => {
         e.stopPropagation(); // Prevent adding the exercise when clicking play
-        setPreviewVideoId(videoId);
+        // If it's a selected exercise (light object), try to find full object in availableExercises for better details
+        const fullExercise = availableExercises.find(ex => ex.id === exercise.exerciseId || ex.id === exercise.id) || exercise;
+        setPreviewVideoId(fullExercise);
     };
 
     const allMuscles = getMuscles();
@@ -268,7 +271,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                                             {/* Checkbox intentionally disabled/hidden for grouped items in this view or kept for other logic? Keeping it simple for now, can't group already grouped items easily without bugs */}
                                                             {subEx.thumbnail && (
                                                                 <div
-                                                                    onClick={() => setPreviewVideoId(subEx.videoId)}
+                                                                    onClick={(e) => handlePreview(e, subEx)}
                                                                     style={{ position: 'relative', width: 40, height: 22, cursor: 'pointer' }}
                                                                 >
                                                                     <img src={subEx.thumbnail} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} alt="" />
@@ -321,7 +324,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                             />
                                             {item.thumbnail && (
                                                 <div
-                                                    onClick={() => setPreviewVideoId(item.videoId)}
+                                                    onClick={(e) => handlePreview(e, item)}
                                                     style={{ position: 'relative', width: 40, height: 22, cursor: 'pointer' }}
                                                 >
                                                     <img src={item.thumbnail} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} alt="" />
@@ -476,7 +479,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                     background: 'rgba(255,255,255,0.02)'
                                 }}
                             >
-                                <div style={{ position: 'relative', width: 50, height: 28 }} onClick={(e) => handlePreview(e, ex.videoId)}>
+                                <div style={{ position: 'relative', width: 50, height: 28 }} onClick={(e) => handlePreview(e, ex)}>
                                     <img src={ex.thumbnail} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} alt="" />
                                     <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)' }}>
                                         <Play size={12} fill="white" color="white" />
@@ -509,29 +512,15 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                 </button>
             </div>
 
-            {/* Video Preview Modal */}
-            {previewVideoId && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.9)', zIndex: 50,
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
-                }} onClick={() => setPreviewVideoId(null)}>
-                    <div style={{ width: '90%', maxWidth: '500px', aspectRatio: '16/9', background: 'black' }} onClick={e => e.stopPropagation()}>
-                        <iframe
-                            width="100%"
-                            height="100%"
-                            src={`https://www.youtube.com/embed/${previewVideoId}?autoplay=1`}
-                            title="Preview"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                        ></iframe>
-                    </div>
-                    <button style={{ marginTop: '1rem', color: 'white', background: 'transparent', border: '1px solid white', padding: '0.5rem 1rem', borderRadius: '4px' }} onClick={() => setPreviewVideoId(null)}>
-                        {t('common.close')}
-                    </button>
-                </div>
-            )}
+            {/* Exercise Detail Modal */}
+            <Modal isOpen={!!previewVideoId} onClose={() => setPreviewVideoId(null)} title={previewVideoId?.name || 'Exercise Detail'}>
+                {previewVideoId && (
+                    <ExerciseDetail
+                        exercise={previewVideoId}
+                        onClose={() => setPreviewVideoId(null)}
+                    />
+                )}
+            </Modal>
         </form>
     );
 };
