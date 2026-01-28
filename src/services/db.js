@@ -34,10 +34,23 @@ export const checkWhitelist = async (email) => {
     const q = query(collection(db, 'whitelist'), where('email', '==', email));
     const snapshot = await getDocs(q);
 
-    if (snapshot.empty) return { allowed: false, role: null };
+    if (!snapshot.empty) {
+        const data = snapshot.docs[0].data();
+        return { allowed: true, role: data.role || 'user' };
+    }
 
-    const data = snapshot.docs[0].data();
-    return { allowed: true, role: data.role || 'user' };
+    // 3. User not found -> Register as Pending
+    try {
+        await setDoc(docRef, {
+            email,
+            role: 'pending',
+            createdAt: new Date().toISOString()
+        });
+        return { allowed: false, role: 'pending' };
+    } catch (e) {
+        console.error("Error creating pending user:", e);
+        return { allowed: false, error: true };
+    }
 };
 
 export const checkIsAdmin = async (email) => {

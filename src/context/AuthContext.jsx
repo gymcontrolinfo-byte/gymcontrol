@@ -5,7 +5,8 @@ import {
     onAuthStateChanged,
     signInWithEmailAndPassword,
     signOut,
-    createUserWithEmailAndPassword
+    createUserWithEmailAndPassword,
+    sendPasswordResetEmail
 } from 'firebase/auth';
 import { checkIsAdmin, checkWhitelist } from '../services/db';
 
@@ -70,12 +71,17 @@ export const AuthProvider = ({ children }) => {
         return unsubscribe;
     }, []);
 
+    const resetPassword = (email) => {
+        return sendPasswordResetEmail(auth, email);
+    };
+
     const value = {
         currentUser,
         isAdmin,
         signup,
         login,
-        logout
+        logout,
+        resetPassword
     };
 
     return (

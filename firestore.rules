@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Whitelist Collection
+    match /whitelist/{docId} {
+      // Allow anyone to read (needed for login check)
+      allow read: if true; 
+      
+      // Allow user to create THEIR OWN request (pending).
+      // We need to validate the data being written matches their auth and is 'pending'
+      allow create: if isSignedIn() 
+                    && request.resource.data.email == request.auth.token.email
+                    && request.resource.data.role == "pending";
+                    
+      // Allow authenticated users to update/delete (For Admin Management)
+      // Ideally this should be restricted to actual Admins only.
+      allow update, delete: if isSignedIn(); 
+    }
+    
+    // Users Data
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth.uid == userId;
+    }
+  }
+}

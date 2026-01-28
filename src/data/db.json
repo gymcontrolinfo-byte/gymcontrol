@@ -46,5 +46,205 @@
     ],
     "Full Body": []
   },
-  "shared_plans": []
+  "shared_plans": [
+    {
+      "id": "3aec34df-7ff0-44bf-bc06-e1ed0f4d275f",
+      "from": "ingiscpp@gmail.com",
+      "to": "horaciosantosc@gmail.com",
+      "timestamp": "2026-01-27T14:23:37.634Z",
+      "plan": {
+        "name": "Espalda & Biceps (Shared)",
+        "createdAt": "2026-01-23T05:56:51.292Z",
+        "id": "cf8ea560-6bd3-4df5-9806-30f6eb4df088",
+        "exercises": [
+          {
+            "exerciseId": "e28cd454-6314-4899-b494-afaeddb77311",
+            "videoId": "7JnP8dFbS14",
+            "thumbnail": "https://img.youtube.com/vi/7JnP8dFbS14/mqdefault.jpg",
+            "name": "Wide Grip Lat Pulldown",
+            "weight": "32",
+            "sets": 3,
+            "reps": 10
+          },
+          {
+            "reps": 10,
+            "videoId": "lJoozxC0Rns",
+            "sets": 3,
+            "weight": 0,
+            "name": " Seated Cable Row",
+            "thumbnail": "https://img.youtube.com/vi/lJoozxC0Rns/mqdefault.jpg",
+            "exerciseId": "d4ff13b5-9028-471b-9ad8-fefce5e48bb7"
+          },
+          {
+            "weight": 0,
+            "sets": 3,
+            "exerciseId": "d324ccb3-d192-48ff-ac95-65604ab7277c",
+            "thumbnail": "https://img.youtube.com/vi/DMo3HJoawrU/mqdefault.jpg",
+            "videoId": "DMo3HJoawrU",
+            "name": "Single Arm Dumbbell Row",
+            "reps": 10
+          },
+          {
+            "weight": 0,
+            "supersetId": "f8980c71-c058-4f7c-9ab0-67a7f995f988",
+            "videoId": "32auHIqgEoM",
+            "thumbnail": "https://img.youtube.com/vi/32auHIqgEoM/mqdefault.jpg",
+            "name": "Straight-arm CABLE LAT PULLOVER",
+            "reps": "12",
+            "exerciseId": "8c4a1734-9cee-4102-b4cf-5137ea238914",
+            "sets": 3
+          },
+          {
+            "name": "Face Pulls",
+            "supersetId": "f8980c71-c058-4f7c-9ab0-67a7f995f988",
+            "exerciseId": "2b7a42cc-aab9-4730-8fbd-3d2989cee948",
+            "sets": 3,
+            "videoId": "ljgqer1ZpXg",
+            "thumbnail": "https://img.youtube.com/vi/ljgqer1ZpXg/mqdefault.jpg",
+            "reps": "15",
+            "weight": 0
+          },
+          {
+            "reps": "15",
+            "name": "Hyperextension",
+            "thumbnail": "https://img.youtube.com/vi/k6LyPhGRV-o/mqdefault.jpg",
+            "videoId": "k6LyPhGRV-o",
+            "sets": 3,
+            "weight": 0,
+            "exerciseId": "4e20b665-d094-494f-a296-a7c22f92280c"
+          },
+          {
+            "weight": 0,
+            "sets": 3,
+            "exerciseId": "489d74c5-05ca-4bbb-8058-3084b0946287",
+            "name": "Supinated Bicep Curl",
+            "reps": 10,
+            "supersetId": "2af57841-4c5d-4e6b-9910-532f6f685432",
+            "videoId": "VCw_uIxW8WE",
+            "thumbnail": "https://img.youtube.com/vi/VCw_uIxW8WE/mqdefault.jpg"
+          },
+          {
+            "name": "HAMMER CURLS ",
+            "supersetId": "2af57841-4c5d-4e6b-9910-532f6f685432",
+            "weight": 0,
+            "exerciseId": "ac238088-6347-4612-9c87-4aeffc1b9681",
+            "sets": 3,
+            "reps": 10,
+            "thumbnail": "https://img.youtube.com/vi/BRVDS6HVR9Q/mqdefault.jpg",
+            "videoId": "BRVDS6HVR9Q"
+          },
+          {
+            "reps": 10,
+            "sets": 3,
+            "name": "Concentration Curls",
+            "weight": 0,
+            "videoId": "ebqgIOiYGEY",
+            "exerciseId": "8780ea71-3794-4882-b886-6e4f0e7f9221",
+            "thumbnail": "https://img.youtube.com/vi/ebqgIOiYGEY/mqdefault.jpg"
+          }
+        ]
+      },
+      "exercises": [
+        {
+          "subMuscle": "Lats",
+          "muscle": "Back",
+          "id": "e28cd454-6314-4899-b494-afaeddb77311",
+          "url": "https://youtu.be/7JnP8dFbS14?si=b3OC_8KN7q1GkJyj",
+          "type": "weight",
+          "thumbnail": "https://img.youtube.com/vi/7JnP8dFbS14/mqdefault.jpg",
+          "name": "Wide Grip Lat Pulldown",
+          "videoId": "7JnP8dFbS14",
+          "createdAt": "2026-01-23T05:41:37.961Z"
+        },
+        {
+          "id": "d4ff13b5-9028-471b-9ad8-fefce5e48bb7",
+          "videoId": "lJoozxC0Rns",
+          "name": " Seated Cable Row",
+          "url": "https://youtu.be/lJoozxC0Rns?si=b6_kaW9W4Qbgonmg",
+          "thumbnail": "https://img.youtube.com/vi/lJoozxC0Rns/mqdefault.jpg",
+          "type": "weight",
+          "muscle": "Back",
+          "createdAt": "2026-01-23T05:53:40.388Z",
+          "subMuscle": "Lats"
+        },
+        {
+          "url": "https://youtu.be/DMo3HJoawrU?si=PUbWDKjCCnnQQkKo",
+          "type": "weight",
+          "createdAt": "2026-01-23T05:42:37.223Z",
+          "muscle": "Back",
+          "id": "d324ccb3-d192-48ff-ac95-65604ab7277c",
+          "subMuscle": "Traps",
+          "thumbnail": "https://img.youtube.com/vi/DMo3HJoawrU/mqdefault.jpg",
+          "videoId": "DMo3HJoawrU",
+          "name": "Single Arm Dumbbell Row"
+        },
+        {
+          "createdAt": "2026-01-23T05:51:32.848Z",
+          "type": "weight",
+          "videoId": "32auHIqgEoM",
+          "url": "https://youtu.be/32auHIqgEoM?si=zCzVPRGIYT4M1syJ",
+          "id": "8c4a1734-9cee-4102-b4cf-5137ea238914",
+          "subMuscle": "Lats",
+          "name": "Straight-arm CABLE LAT PULLOVER",
+          "muscle": "Back",
+          "thumbnail": "https://img.youtube.com/vi/32auHIqgEoM/mqdefault.jpg"
+        },
+        {
+          "type": "weight",
+          "videoId": "ljgqer1ZpXg",
+          "thumbnail": "https://img.youtube.com/vi/ljgqer1ZpXg/mqdefault.jpg",
+          "url": "https://youtu.be/ljgqer1ZpXg?t=186&si=a-S2D9yy7-d7Hqd1",
+          "createdAt": "2026-01-23T05:49:45.075Z",
+          "muscle": "Back",
+          "name": "Face Pulls",
+          "subMuscle": "Traps",
+          "id": "2b7a42cc-aab9-4730-8fbd-3d2989cee948"
+        },
+        {
+          "type": "bodyweight",
+          "subMuscle": "Lower Back",
+          "muscle": "Back",
+          "id": "4e20b665-d094-494f-a296-a7c22f92280c",
+          "url": "https://youtu.be/k6LyPhGRV-o?si=bi4acg7nXK_x7NUF",
+          "videoId": "k6LyPhGRV-o",
+          "name": "Hyperextension",
+          "createdAt": "2026-01-23T05:52:29.565Z",
+          "thumbnail": "https://img.youtube.com/vi/k6LyPhGRV-o/mqdefault.jpg"
+        },
+        {
+          "type": "weight",
+          "url": "https://youtu.be/VCw_uIxW8WE",
+          "id": "489d74c5-05ca-4bbb-8058-3084b0946287",
+          "subMuscle": "Short Head",
+          "createdAt": "2026-01-23T16:51:11.804Z",
+          "videoId": "VCw_uIxW8WE",
+          "thumbnail": "https://img.youtube.com/vi/VCw_uIxW8WE/mqdefault.jpg",
+          "name": "Supinated Bicep Curl",
+          "muscle": "Biceps"
+        },
+        {
+          "url": "https://youtu.be/BRVDS6HVR9Q?si=ceTar9LoWBlEUmhw",
+          "type": "weight",
+          "thumbnail": "https://img.youtube.com/vi/BRVDS6HVR9Q/mqdefault.jpg",
+          "id": "ac238088-6347-4612-9c87-4aeffc1b9681",
+          "createdAt": "2026-01-23T16:53:23.409Z",
+          "videoId": "BRVDS6HVR9Q",
+          "muscle": "Biceps",
+          "subMuscle": "Long Head",
+          "name": "HAMMER CURLS "
+        },
+        {
+          "name": "Concentration Curls",
+          "id": "8780ea71-3794-4882-b886-6e4f0e7f9221",
+          "url": "https://youtu.be/ebqgIOiYGEY?si=4BsjG5P7K3rZ-pun&t=199",
+          "muscle": "Biceps",
+          "thumbnail": "https://img.youtube.com/vi/ebqgIOiYGEY/mqdefault.jpg",
+          "createdAt": "2026-01-23T16:55:25.272Z",
+          "videoId": "ebqgIOiYGEY",
+          "subMuscle": "Short Head",
+          "type": "weight"
+        }
+      ]
+    }
+  ]
 }

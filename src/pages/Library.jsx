@@ -31,6 +31,18 @@ const Library = () => {
         return () => unsubscribe();
     }, []);
 
+    useEffect(() => {
+        const url = searchParams.get('sharedUrl');
+        const title = searchParams.get('sharedTitle');
+        if (url) {
+            setSharedUrl(url);
+            if (title) setSharedTitle(title);
+            setIsModalOpen(true);
+            // Optionally clear params to prevent reopening, but requires navigation context or helper
+            // For now, just relying on state.
+        }
+    }, [searchParams]);
+
     // ... (keep PWA logic same) ...
 
     const handleSaved = (newExercise) => {

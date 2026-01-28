@@ -53,7 +53,17 @@
         "noAccount": "¿No tienes una cuenta?",
         "failedLogin": "Error al iniciar sesión",
         "failedSignup": "Error al crear cuenta",
-        "failedGoogle": "Error al iniciar sesión con Google"
+        "failedGoogle": "Error al iniciar sesión con Google",
+        "forgotPassword": "¿Olvidaste tu contraseña?",
+        "resetPassword": "Restablecer Contraseña",
+        "enterEmailRecovery": "Ingresa tu correo para recibir instrucciones.",
+        "sendResetLink": "Enviar Enlace",
+        "checkEmail": "¡Revisa tu correo!",
+        "backToLogin": "Volver al Inicio",
+        "invalidCredential": "La contraseña es incorrecta o el usuario no existe.",
+        "emailInUse": "Este correo ya está registrado.",
+        "weakPassword": "La contraseña debe tener al menos 6 caracteres.",
+        "tooManyRequests": "Demasiados intentos. Intenta más tarde."
     },
     "profile": {
         "title": "Perfil",

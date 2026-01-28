@@ -82,63 +82,123 @@ const Admin = () => {
             {/* List */}
             <div className="glass-card" style={{ padding: '0' }}>
                 <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--glass-border)' }}>
-                    <h3 style={{ margin: 0 }}>Whitelisted Users ({whitelist.length})</h3>
+                    <h3 style={{ margin: 0 }}>User Management</h3>
                 </div>
+
                 {loading ? (
                     <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>
-                ) : whitelist.length === 0 ? (
-                    <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No allowed users yet.</div>
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        {whitelist.map(user => (
-                            <div key={user.id} style={{
-                                padding: '1rem 1.5rem',
-                                borderBottom: '1px solid var(--glass-border)',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                gap: '1rem'
-                            }}>
-                                <div className="flex-col">
-                                    <span style={{ fontWeight: 500 }}>{user.email}</span>
-                                    <span style={{ fontSize: '0.8rem', color: user.role === 'admin' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
-                                        {user.role === 'admin' ? 'Admin' : 'User'}
-                                    </span>
+                        {/* Pending Section */}
+                        {whitelist.filter(u => u.role === 'pending').length > 0 && (
+                            <>
+                                <div style={{ padding: '0.5rem 1.5rem', background: 'rgba(255, 193, 7, 0.1)', color: 'var(--accent-secondary)', fontWeight: 600, fontSize: '0.85rem' }}>
+                                    PENDING REQUESTS
                                 </div>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    {user.email !== ADMIN_EMAIL && (
+                                {whitelist.filter(u => u.role === 'pending').map(user => (
+                                    <div key={user.id} style={{
+                                        padding: '1rem 1.5rem',
+                                        borderBottom: '1px solid var(--glass-border)',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        gap: '1rem',
+                                        background: 'rgba(255, 193, 7, 0.05)'
+                                    }}>
+                                        <div className="flex-col">
+                                            <span style={{ fontWeight: 500 }}>{user.email}</span>
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Requested access</span>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <button
+                                                onClick={() => updateUserRole(user.id, 'user').then(loadWhitelist)}
+                                                style={{
+                                                    background: 'var(--accent-success)',
+                                                    border: 'none',
+                                                    color: 'white',
+                                                    cursor: 'pointer',
+                                                    padding: '0.5rem',
+                                                    borderRadius: '4px',
+                                                    display: 'flex', alignItems: 'center', gap: '0.4rem'
+                                                }}
+                                                title="Approve User"
+                                            >
+                                                <Check size={16} /> Approve
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(user.id)}
+                                                style={{
+                                                    background: 'none', border: '1px solid var(--accent-danger)',
+                                                    color: 'var(--accent-danger)', cursor: 'pointer',
+                                                    padding: '0.4rem', borderRadius: '4px'
+                                                }}
+                                                title="Reject (Delete)"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </>
+                        )}
+
+                        {/* Active Section */}
+                        <div style={{ padding: '0.5rem 1.5rem', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.85rem' }}>
+                            ACTIVE USERS
+                        </div>
+                        {whitelist.filter(u => u.role !== 'pending').length === 0 ? (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No active users.</div>
+                        ) : (
+                            whitelist.filter(u => u.role !== 'pending').map(user => (
+                                <div key={user.id} style={{
+                                    padding: '1rem 1.5rem',
+                                    borderBottom: '1px solid var(--glass-border)',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    gap: '1rem'
+                                }}>
+                                    <div className="flex-col">
+                                        <span style={{ fontWeight: 500 }}>{user.email}</span>
+                                        <span style={{ fontSize: '0.8rem', color: user.role === 'admin' ? 'var(--accent-primary)' : 'var(--text-muted)' }}>
+                                            {user.role === 'admin' ? 'Admin' : 'User'}
+                                        </span>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        {user.email !== ADMIN_EMAIL && (
+                                            <button
+                                                onClick={() => toggleRole(user)}
+                                                style={{
+                                                    background: user.role === 'admin' ? 'var(--accent-primary)' : 'rgba(255,255,255,0.05)',
+                                                    border: '1px solid var(--glass-border)',
+                                                    color: 'white',
+                                                    cursor: 'pointer',
+                                                    padding: '0.5rem',
+                                                    borderRadius: '4px',
+                                                    fontSize: '0.8rem',
+                                                    display: 'flex', alignItems: 'center', gap: '0.4rem'
+                                                }}
+                                                title={user.role === 'admin' ? "Demote to User" : "Promote to Admin"}
+                                            >
+                                                <UserCog size={16} />
+                                                {user.role === 'admin' ? 'Admin' : 'Make Admin'}
+                                            </button>
+                                        )}
                                         <button
-                                            onClick={() => toggleRole(user)}
+                                            onClick={() => handleDelete(user.id)}
                                             style={{
-                                                background: user.role === 'admin' ? 'var(--accent-primary)' : 'rgba(255,255,255,0.05)',
-                                                border: '1px solid var(--glass-border)',
-                                                color: 'white',
-                                                cursor: 'pointer',
-                                                padding: '0.5rem',
-                                                borderRadius: '4px',
-                                                fontSize: '0.8rem',
-                                                display: 'flex', alignItems: 'center', gap: '0.4rem'
+                                                background: 'none', border: 'none',
+                                                color: 'var(--accent-danger)', cursor: 'pointer',
+                                                padding: '0.5rem'
                                             }}
-                                            title={user.role === 'admin' ? "Demote to User" : "Promote to Admin"}
+                                            title="Remove User"
                                         >
-                                            <UserCog size={16} />
-                                            {user.role === 'admin' ? 'Admin' : 'Make Admin'}
+                                            <Trash2 size={18} />
                                         </button>
-                                    )}
-                                    <button
-                                        onClick={() => handleDelete(user.id)}
-                                        style={{
-                                            background: 'none', border: 'none',
-                                            color: 'var(--accent-danger)', cursor: 'pointer',
-                                            padding: '0.5rem'
-                                        }}
-                                        title="Remove User"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
                 )}
             </div>

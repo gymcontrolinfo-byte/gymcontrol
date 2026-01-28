@@ -1,5 +1,8 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { registerPlugin } from '@capacitor/core';
+
+const SendIntent = registerPlugin('SendIntent');
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Layout from './components/Layout';
 import { initDB } from './services/db';
@@ -24,12 +27,33 @@ const ProtectedRoute = ({ children }) => {
 // App Content Wrapper to access Auth Context
 const AppContent = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (currentUser) {
       initDB(currentUser.uid);
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    const checkIntent = async () => {
+      try {
+        // SendIntent is a Native Plugin. It throws on Web "not implemented".
+        const result = await SendIntent.checkSendIntentReceived();
+        if (result && result.url) {
+          console.log('Shared content received:', result.url);
+          navigate(`/library?sharedUrl=${encodeURIComponent(result.url)}`);
+        }
+      } catch (err) {
+        // Suppress "not implemented" error on web to clean up logs
+        if (err.message && err.message.includes('not implemented')) {
+          return;
+        }
+        console.warn('SendIntent Error (Safe to ignore on Web):', err);
+      }
+    };
+    checkIntent();
+  }, [navigate]);
 
   return (
     <Routes>
