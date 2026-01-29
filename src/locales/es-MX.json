@@ -31,6 +31,7 @@
         "errorTitle": "Por favor ingresa un título"
     },
     "nav": {
+        "home": "Inicio",
         "stats": "Estadísticas",
         "exercises": "Ejercicios",
         "plan": "Plan",

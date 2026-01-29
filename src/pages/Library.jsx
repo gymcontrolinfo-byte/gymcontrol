@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Tag, Plus, Play, Trash2, Dumbbell } from 'lucide-react';
+import { Search, Tag, Plus, Play, Trash2, Dumbbell, X, Check } from 'lucide-react';
 import { getExercises, deleteExercise, subscribe } from '../services/db';
 import { useTranslation } from 'react-i18next';
 
@@ -149,7 +149,7 @@ const Library = () => {
                             style={{ borderRadius: 'var(--radius-full)', width: '48px', height: '48px', color: isSelectionMode ? 'var(--accent-primary)' : 'inherit' }}
                             title="Batch Delete"
                         >
-                            <Trash2 size={20} />
+                            <Trash2 size={20} style={{ minWidth: '20px', minHeight: '20px' }} />
                         </button>
                         <button
                             className="btn btn-secondary btn-icon"
@@ -157,14 +157,14 @@ const Library = () => {
                             style={{ borderRadius: 'var(--radius-full)', width: '48px', height: '48px' }}
                             title={t('library.manageMuscles')}
                         >
-                            <Tag size={20} />
+                            <Tag size={20} style={{ minWidth: '20px', minHeight: '20px' }} />
                         </button>
                         <button
                             className="btn btn-primary btn-icon"
                             onClick={() => setIsModalOpen(true)}
                             style={{ borderRadius: 'var(--radius-full)', width: '48px', height: '48px' }}
                         >
-                            <Plus size={24} />
+                            <Plus size={24} style={{ minWidth: '24px', minHeight: '24px' }} />
                         </button>
                     </>
                 )}

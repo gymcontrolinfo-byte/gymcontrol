@@ -10,7 +10,8 @@ import {
     getDocs,
     getDoc,
     addDoc,
-    where
+    where,
+    limit
 } from 'firebase/firestore';
 
 export const ADMIN_EMAIL = 'gymcontrolinfo@gmail.com';
@@ -231,6 +232,20 @@ export const deleteSession = async (id) => {
     await deleteDoc(doc(db, 'users', currentUserId, 'sessions', id));
 };
 
+export const toggleSessionFavorite = async (id) => {
+    if (!currentUserId) return;
+    const session = dbData.sessions.find(s => s.id === id);
+    if (session) {
+        const newFavStatus = !session.isFavorite;
+        // Optimistic
+        session.isFavorite = newFavStatus;
+        notifyListeners();
+        // Firestore
+        const ref = doc(db, 'users', currentUserId, 'sessions', id);
+        await setDoc(ref, { isFavorite: newFavStatus }, { merge: true });
+    }
+};
+
 // History
 export const getHistory = () => dbData.history || [];
 
@@ -342,4 +357,77 @@ export const resolveShare = async (shareId) => {
     });
     if (!res.ok) throw new Error('Failed to resolve share');
     return true;
+};
+
+// --- CMS (Featured Content) ---
+export const updateFeaturedContent = async (data) => {
+    // "featured" is the singleton ID for the featured card
+    await setDoc(doc(db, 'site_content', 'featured'), data, { merge: true });
+};
+
+export const subscribeFeaturedContent = (callback) => {
+    return onSnapshot(doc(db, 'site_content', 'featured'), (docSnap) => {
+        if (docSnap.exists()) {
+            callback(docSnap.data());
+        } else {
+            callback(null);
+        }
+    });
+};
+
+// --- Articles CMS ---
+export const getArticles = async () => {
+    const q = query(collection(db, 'articles'), orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
+
+export const subscribeArticles = (callback) => {
+    const q = query(collection(db, 'articles'), orderBy('createdAt', 'desc'));
+    return onSnapshot(q, (snapshot) => {
+        const articles = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        callback(articles);
+    });
+};
+
+export const subscribeLatestArticle = (callback) => {
+    const q = query(collection(db, 'articles'), orderBy('createdAt', 'desc'), limit(1));
+    return onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+            const docSnap = snapshot.docs[0];
+            callback({ id: docSnap.id, ...docSnap.data() });
+        } else {
+            callback(null);
+        }
+    });
+};
+
+export const getArticle = async (id) => {
+    const docRef = doc(db, 'articles', id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() };
+    }
+    return null;
+};
+
+export const saveArticle = async (article) => {
+    // If no ID, create new. If ID, update.
+    const id = article.id || crypto.randomUUID();
+    const docRef = doc(db, 'articles', id);
+    const dataToSave = {
+        ...article,
+        id: id, // Ensure ID is set and not undefined
+        updatedAt: new Date().toISOString()
+    };
+    if (!article.createdAt) {
+        dataToSave.createdAt = new Date().toISOString();
+    }
+
+    await setDoc(docRef, dataToSave, { merge: true });
+    return id;
+};
+
+export const deleteArticle = async (id) => {
+    await deleteDoc(doc(db, 'articles', id));
 };

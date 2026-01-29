@@ -14,6 +14,7 @@ import Planner from './pages/Planner';
 import Train from './pages/Train';
 import Stats from './pages/Stats';
 import Tips from './pages/Tips';
+import ArticleDetail from './pages/ArticleDetail';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 
@@ -70,6 +71,7 @@ const AppContent = () => {
         <Route path="plan" element={<Planner />} />
         <Route path="train/:sessionId" element={<Train />} />
         <Route path="tips" element={<Tips />} />
+        <Route path="article/:id" element={<ArticleDetail />} />
         <Route path="profile" element={<Profile />} />
         <Route path="admin" element={<Admin />} />
         <Route path="*" element={<Navigate to="/" replace />} />

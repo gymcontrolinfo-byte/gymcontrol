@@ -1,11 +1,31 @@
 
 import React, { useState } from 'react';
-import { Calendar, ChevronDown, ChevronRight, Dumbbell, Zap, Info, Flame, Activity } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronRight, Dumbbell, Zap, Info, Flame, Activity, BookOpen, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { subscribeArticles } from '../services/db';
+import { useNavigate } from 'react-router-dom';
 
 const Tips = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [openSection, setOpenSection] = useState(null);
+    const [groupedArticles, setGroupedArticles] = useState({});
+
+    React.useEffect(() => {
+        const unsub = subscribeArticles((data) => {
+
+            // Group by Month Year
+            const grouped = {};
+            data.forEach(article => {
+                const date = new Date(article.createdAt || Date.now());
+                const key = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(article);
+            });
+            setGroupedArticles(grouped);
+        });
+        return () => unsub();
+    }, []);
 
     const toggle = (section) => {
         setOpenSection(openSection === section ? null : section);
@@ -121,6 +141,48 @@ const Tips = () => {
                     </div>
                 </div>
             </Section>
+
+            {/* Articles History */}
+            {Object.keys(groupedArticles).length > 0 && (
+                <div className="flex-col" style={{ gap: '1.5rem', marginTop: '1.5rem' }}>
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.2rem', marginBottom: '-0.5rem' }}>
+                        <BookOpen size={20} color="var(--accent-primary)" /> Latest Articles
+                    </h3>
+
+                    {Object.entries(groupedArticles).map(([groupKey, groupArticles]) => (
+                        <div key={groupKey}>
+                            <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '0.8rem', paddingLeft: '0.5rem', borderLeft: '3px solid var(--accent-primary)' }}>
+                                {groupKey}
+                            </div>
+                            <div className="grid-fill" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+                                {groupArticles.map(article => (
+                                    <div
+                                        key={article.id}
+                                        className="glass-card"
+                                        style={{ padding: '0', overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
+                                        onClick={() => navigate(`/article/${article.id}`)}
+                                    >
+                                        {article.imageUrl && (
+                                            <div style={{ height: '140px', width: '100%' }}>
+                                                <img src={article.imageUrl} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            </div>
+                                        )}
+                                        <div style={{ padding: '1.2rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: 600, marginBottom: '0.3rem' }}>
+                                                {article.subtitle || 'ARTICLE'}
+                                            </div>
+                                            <h4 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', lineHeight: 1.3 }}>{article.title}</h4>
+                                            <div style={{ marginTop: 'auto', paddingTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                Read More <ArrowRight size={14} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
         </div>
     );

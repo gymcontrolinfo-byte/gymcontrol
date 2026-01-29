@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { getSessions, deleteSession, sharePlan, getPendingShares, resolveShare, saveSession, saveExercise, getExercises } from '../services/db';
+import { getSessions, deleteSession, sharePlan, getPendingShares, resolveShare, saveSession, saveExercise, getExercises, toggleSessionFavorite } from '../services/db';
 import Modal from '../components/Modal';
 import SessionForm from '../components/SessionForm';
-import { Plus, Play, Trash2, Calendar, ClipboardList, Share2, Inbox, Check, X, Download } from 'lucide-react';
+import { Plus, Play, Trash2, Calendar, ClipboardList, Share2, Inbox, Check, X, Download, Heart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -142,7 +142,7 @@ const Planner = () => {
                         onClick={() => { loadInbox(); setIsInboxOpen(true); }}
                         style={{ borderRadius: 'var(--radius-full)', width: '40px', height: '40px', position: 'relative' }}
                     >
-                        <Inbox size={20} />
+                        <Inbox size={20} style={{ minWidth: '20px', minHeight: '20px' }} />
                         {pendingShares.length > 0 && (
                             <span style={{ position: 'absolute', top: -5, right: -5, background: 'red', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{pendingShares.length}</span>
                         )}
@@ -152,7 +152,7 @@ const Planner = () => {
                         onClick={() => { setEditingSession(null); setIsModalOpen(true); }}
                         style={{ borderRadius: 'var(--radius-full)', width: '40px', height: '40px' }}
                     >
-                        <Plus size={20} />
+                        <Plus size={20} style={{ minWidth: '20px', minHeight: '20px' }} />
                     </button>
                 </div>
             </div>
@@ -177,6 +177,9 @@ const Planner = () => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{session.name}</h3>
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button onClick={(e) => { e.stopPropagation(); toggleSessionFavorite(session.id); setSessions([...getSessions()]); }} style={{ background: 'none', border: 'none', color: session.isFavorite ? '#ef4444' : 'var(--text-muted)', cursor: 'pointer' }}>
+                                        <Heart size={18} fill={session.isFavorite ? "#ef4444" : "none"} />
+                                    </button>
                                     <button onClick={(e) => openShareModal(session, e)} style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', cursor: 'pointer' }}><Share2 size={16} /></button>
                                     <button onClick={(e) => handleEdit(session, e)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.8rem' }}>{t('planner.edit')}</button>
                                     <button onClick={(e) => handleDelete(session.id, e)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><Trash2 size={16} /></button>

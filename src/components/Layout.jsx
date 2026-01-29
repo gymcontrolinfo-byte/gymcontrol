@@ -1,15 +1,25 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { Dumbbell, Calendar, LayoutDashboard, Settings, Lightbulb, Shield } from 'lucide-react';
+import { Dumbbell, Calendar, LayoutDashboard, Settings, Lightbulb, Shield, Home } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { ADMIN_EMAIL } from '../services/db';
+import { ADMIN_EMAIL, subscribe } from '../services/db';
 import { useTranslation } from 'react-i18next';
 import '../index.css';
 
 const Layout = () => {
     const { t } = useTranslation();
     const { currentUser, isAdmin } = useAuth();
+    const [dbUser, setDbUser] = useState(null);
+
+    useEffect(() => {
+        const unsubscribe = subscribe((data) => {
+            setDbUser(data.user);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    const avatarSrc = dbUser?.photoURL || currentUser?.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${currentUser?.email || 'User'}`;
 
     return (
         <div className="layout">
@@ -23,8 +33,7 @@ const Layout = () => {
                 </div>
                 <div className="user-avatar" style={{ width: 32, height: 32, background: 'var(--bg-secondary)', borderRadius: '50%', overflow: 'hidden' }}>
                     <NavLink to="/profile" style={{ display: 'block', width: '100%', height: '100%' }}>
-                        {/* Placeholder for now, specific logic can be added if needed */}
-                        <img src={`https://api.dicebear.com/7.x/initials/svg?seed=User`} alt="User" style={{ width: '100%', height: '100%' }} />
+                        <img src={avatarSrc} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </NavLink>
                 </div>
             </header>
@@ -48,7 +57,7 @@ const Layout = () => {
                 padding: '0.8rem',
                 backdropFilter: 'blur(20px)'
             }}>
-                <NavItem to="/" icon={<LayoutDashboard size={24} />} label={t('nav.stats')} />
+                <NavItem to="/" icon={<Home size={24} />} label={t('nav.home')} />
                 <NavItem to="/library" icon={<Dumbbell size={24} />} label={t('nav.exercises')} />
                 <NavItem to="/plan" icon={<Calendar size={24} />} label={t('nav.plan')} />
                 <NavItem to="/tips" icon={<Lightbulb size={24} />} label={t('nav.tips')} />

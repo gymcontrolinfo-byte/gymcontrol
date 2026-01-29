@@ -31,6 +31,7 @@
         "errorTitle": "Please enter a title"
     },
     "nav": {
+        "home": "Home",
         "stats": "Stats",
         "exercises": "Exercises",
         "plan": "Plan",

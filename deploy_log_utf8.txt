@@ -1,0 +1,8 @@
+﻿
+[1m[37m===[39m Deploying to 'gym-pro-control'...[22m
+
+[36m[1mi [22m[39m deploying [1mfirestore[22m
+[36m[1mi  firestore:[22m[39m ensuring required API [1mfirestore.googleapis.com[22m is enabled...
+
+[1m[31mError:[39m[22m Request to https://serviceusage.googleapis.com/v1/projects/gym-pro-control/services/firestore.googleapis.com had HTTP Error: 403, Permission denied to get service [firestore.googleapis.com]
+Help Token: AcxmRmLpbEubizfhl4CpgthK1EUgEVi_SDr6sxxtz1nYQEcajKrq_ZSX8Ib8jCBiAlsHgAIp4LJCcjy_x1fNtGQ6VKTy5VNa8czFj9V5Rn93Jmsa

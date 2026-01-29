@@ -4,6 +4,8 @@ import { updateProfile } from 'firebase/auth';
 import { User, LogOut, Check, X, Camera, Settings, Moon, Sun, Globe, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
+import { db } from '../firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 const Profile = () => {
     const { currentUser, logout } = useAuth();
@@ -25,7 +27,7 @@ const Profile = () => {
         try {
             await updateProfile(currentUser, {
                 displayName,
-                photoURL
+                // photoURL // Don't update photoURL in Auth if it's too long
             });
             setMessage(t('profile.saveSuccess'));
         } catch (err) {
@@ -35,6 +37,44 @@ const Profile = () => {
         }
     };
 
+    const compressImage = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 500;
+                    const MAX_HEIGHT = 500;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.onerror = (error) => reject(error);
+            };
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -42,25 +82,18 @@ const Profile = () => {
         setLoading(true);
         setError('');
         try {
-            // Import dynamically or assume imports are added at top
-            // To ensure imports are present, I will update imports in a separate replace block or assume user has them? 
-            // Better to include imports in the full file replace if many changes, but let's try to add logic here.
-            // Wait, I need to add imports to the top of the file as well.
-            // I will use a multi-step approach or just assume I can add imports.
-            // Actually, I should use `multi_replace_file_content` to add imports AND this logic.
-            // But I'm in `replace_file_content`.
-            // I'll proceed with this block and then add imports in another call.
+            const base64String = await compressImage(file);
 
-            const { ref, uploadBytes, getDownloadURL } = await import("firebase/storage");
-            const { storage } = await import("../firebase");
+            // Save to Firestore
+            const userRef = doc(db, 'users', currentUser.uid);
+            await setDoc(userRef, {
+                user: {
+                    photoURL: base64String,
+                    email: currentUser.email
+                }
+            }, { merge: true });
 
-            const storageRef = ref(storage, `profile_pictures/${currentUser.uid}`);
-            await uploadBytes(storageRef, file);
-            const url = await getDownloadURL(storageRef);
-
-            setPhotoURL(url);
-            // Auto-save photo URL invocation
-            await updateProfile(currentUser, { photoURL: url });
+            setPhotoURL(base64String);
             setMessage('Profile picture updated!');
         } catch (err) {
             console.error(err);
@@ -188,18 +221,6 @@ const Profile = () => {
                     />
                 </div>
 
-                <div className="input-group">
-                    <label style={{ display: 'block', marginBottom: '0.5rem', marginLeft: '0.5rem' }}>Photo URL</label>
-                    <input
-                        type="text"
-                        value={photoURL}
-                        onChange={(e) => setPhotoURL(e.target.value)}
-                        placeholder="https://example.com/photo.jpg"
-                        className="input-field"
-                        style={{ paddingLeft: '3rem' }}
-                    />
-                    <Camera className="input-icon" size={20} />
-                </div>
 
                 <button disabled={loading} type="submit" className="btn btn-primary" style={{ marginTop: '0.5rem' }}>
                     {loading ? t('common.loading') : t('common.save')}

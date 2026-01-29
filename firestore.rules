@@ -27,5 +27,17 @@ service cloud.firestore {
     match /users/{userId}/{document=**} {
       allow read, write: if request.auth.uid == userId;
     }
+
+    // CMS Content
+    match /site_content/{document=**} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Articles Root Collection
+    match /articles/{articleId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
   }
 }
