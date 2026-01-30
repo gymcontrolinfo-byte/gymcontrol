@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { getSessions, deleteSession, sharePlan, getPendingShares, resolveShare, saveSession, saveExercise, getExercises, toggleSessionFavorite } from '../services/db';
-import Modal from '../components/Modal';
+import Modal from '../components/Modal'; // Ensure single import
 import SessionForm from '../components/SessionForm';
-import { Plus, Play, Trash2, Calendar, ClipboardList, Share2, Inbox, Check, X, Download, Heart } from 'lucide-react';
+import { Plus, Play, Trash2, Calendar, ClipboardList, Share2, Inbox, Check, X, Download, Heart, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

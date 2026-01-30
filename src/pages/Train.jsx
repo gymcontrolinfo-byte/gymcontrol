@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getSessions, saveLog, getExercises } from '../services/db';
 import { v4 as uuidv4 } from 'uuid';
-import { Timer, CheckCircle, ArrowLeft, Play, Save, Link, Repeat, Search, X } from 'lucide-react';
+import { Timer, CheckCircle, ArrowLeft, Play, Save, Link, Repeat, Search, X, Plus, Minus } from 'lucide-react';
 import Modal from '../components/Modal';
 import ExerciseDetail from '../components/ExerciseDetail';
 
@@ -22,6 +22,24 @@ const Train = () => {
     const [swapModalOpen, setSwapModalOpen] = useState(false);
     const [swapIndex, setSwapIndex] = useState(null);
     const [swapSearch, setSwapSearch] = useState('');
+
+    // Rest Timer State
+    const [restTimer, setRestTimer] = useState({ active: false, timeLeft: 0, total: 0 });
+
+    useEffect(() => {
+        let timer = null;
+        if (restTimer.active && restTimer.timeLeft > 0) {
+            timer = setInterval(() => {
+                setRestTimer(prev => ({ ...prev, timeLeft: prev.timeLeft - 1 }));
+            }, 1000);
+        } else if (restTimer.active && restTimer.timeLeft <= 0) {
+            // Timer finished
+            // Optional: Play sound or vibrate
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            setRestTimer(prev => ({ ...prev, active: false }));
+        }
+        return () => clearInterval(timer);
+    }, [restTimer.active, restTimer.timeLeft]);
 
     useEffect(() => {
         setAllExercises(getExercises());
@@ -86,7 +104,57 @@ const Train = () => {
     };
 
     const toggleSetDone = (exIdx, setIdx) => {
-        handleLogChange(exIdx, setIdx, 'done', !logs[exIdx][setIdx].done);
+        const newDoneState = !logs[exIdx][setIdx].done;
+        handleLogChange(exIdx, setIdx, 'done', newDoneState);
+
+        // Logic to trigger Rest Timer
+        if (newDoneState) {
+            const currentEx = session.exercises[exIdx];
+            let shouldTriggerTimer = true;
+            let restDuration = currentEx.rest || 60;
+
+            // Superset Logic: Only trigger if it's the LAST exercise of the superset group
+            if (currentEx.supersetId) {
+                // Find all exercises in this superset
+                const supersetGroup = session.exercises.filter(e => e.supersetId === currentEx.supersetId);
+                const lastInSuperset = supersetGroup[supersetGroup.length - 1];
+
+                // If current is NOT the last one, don't rest yet
+                if (currentEx.id !== lastInSuperset.id) { // using unique ID reference assuming exerciseId might be duplicated if same variation used? safest to use index check if needed but id match on session object structure
+                    // Actually, session.exercises items have their own ID? logic in SessionForm uses uuid for session id but exercises might not have unique instance IDs unless we generated them.
+                    // Let's rely on index or strict object comparison if uncertain.
+                    // In SessionForm: id: initialData ? ... : uuidv4() is for SESSION.
+                    // exercises items: { exerciseId, sets, reps... }
+                    // We don't strictly have a unique instance ID on the exercise object in the array?
+                    // Let's use index comparison since we have exIdx.
+
+                    const groupIndices = session.exercises.map((e, i) => e.supersetId === currentEx.supersetId ? i : -1).filter(i => i !== -1);
+                    const lastIndex = Math.max(...groupIndices);
+
+                    if (exIdx !== lastIndex) {
+                        shouldTriggerTimer = false;
+                    } else {
+                        // It IS the last one, ensuring we use the group's rest time (synced)
+                        restDuration = currentEx.rest || 60;
+                    }
+                }
+            }
+
+            if (shouldTriggerTimer) {
+                setRestTimer({ active: true, timeLeft: restDuration, total: restDuration });
+            }
+        }
+    };
+
+    const adjustTimer = (seconds) => {
+        setRestTimer(prev => {
+            const newTime = Math.max(0, prev.timeLeft + seconds);
+            return { ...prev, timeLeft: newTime, total: Math.max(prev.total, newTime) }; // Update total if we extend beyond? Or just current.
+        });
+    };
+
+    const skipTimer = () => {
+        setRestTimer(prev => ({ ...prev, active: false }));
     };
 
     const handleFinish = () => {
@@ -223,10 +291,11 @@ const Train = () => {
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
                                     {/* Header Row for the Grid */}
-                                    <div style={{ padding: '0.5rem 1rem', display: 'grid', gridTemplateColumns: 'minmax(100px, 1.5fr) 1fr 1fr 40px', gap: '0.5rem', fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', background: 'rgba(0,0,0,0.2)' }}>
+                                    <div style={{ padding: '0.5rem 1rem', display: 'grid', gridTemplateColumns: 'minmax(100px, 1.5fr) 1fr 1fr 1fr 40px', gap: '0.5rem', fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', background: 'rgba(0,0,0,0.2)' }}>
                                         <div style={{ textAlign: 'left' }}>EXERCISE</div>
                                         <div>KG</div>
                                         <div>REPS</div>
+                                        <div>REST</div>
                                         <div>✓</div>
                                     </div>
 
@@ -246,7 +315,7 @@ const Train = () => {
                                                     return (
                                                         <div key={subEx.id} style={{
                                                             display: 'grid',
-                                                            gridTemplateColumns: 'minmax(100px, 1.5fr) 1fr 1fr 40px',
+                                                            gridTemplateColumns: 'minmax(100px, 1.5fr) 1fr 1fr 1fr 40px',
                                                             gap: '0.5rem',
                                                             alignItems: 'center',
                                                             opacity: isDone ? 0.5 : 1,
@@ -291,6 +360,13 @@ const Train = () => {
                                                                     border: '1px solid var(--glass-border)', borderRadius: '4px', color: 'white'
                                                                 }}
                                                             />
+                                                            <div style={{
+                                                                width: '100%', padding: '0.5rem', textAlign: 'center',
+                                                                background: 'transparent',
+                                                                color: 'var(--text-secondary)', fontSize: '0.9rem'
+                                                            }}>
+                                                                {subEx.rest || 60}s
+                                                            </div>
                                                             <button
                                                                 onClick={() => toggleSetDone(globalIdx, setIdx)}
                                                                 style={{
@@ -308,6 +384,17 @@ const Train = () => {
                                             </div>
                                         </div>
                                     ))}
+                                    <div style={{
+                                        textAlign: 'center',
+                                        padding: '0.5rem',
+                                        color: 'var(--text-secondary)',
+                                        fontSize: '0.9rem',
+                                        background: 'rgba(0,0,0,0.2)',
+                                        marginTop: '0.5rem',
+                                        borderRadius: '4px'
+                                    }}>
+                                        Rest: <span style={{ color: 'white', fontWeight: 'bold' }}>{supersetGroup[0].rest || 60}s</span>
+                                    </div>
                                 </div>
                             </div>
                         );
@@ -341,10 +428,11 @@ const Train = () => {
                                 </div>
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '30px 1fr 1fr 40px', gap: '0.5rem', fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '30px 1fr 1fr 1fr 40px', gap: '0.5rem', fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center' }}>
                                         <div>SET</div>
                                         <div>KG</div>
                                         <div>REPS</div>
+                                        <div>REST</div>
                                         <div>✓</div>
                                     </div>
 
@@ -356,7 +444,7 @@ const Train = () => {
                                             <div
                                                 key={setIdx}
                                                 style={{
-                                                    display: 'grid', gridTemplateColumns: '30px 1fr 1fr 40px', gap: '0.5rem',
+                                                    display: 'grid', gridTemplateColumns: '30px 1fr 1fr 1fr 40px', gap: '0.5rem',
                                                     alignItems: 'center',
                                                     transition: 'all 0.3s ease',
                                                     backgroundColor: isDone ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
@@ -388,6 +476,13 @@ const Train = () => {
                                                         border: '1px solid var(--glass-border)', borderRadius: '4px', color: 'white'
                                                     }}
                                                 />
+                                                <div style={{
+                                                    width: '100%', padding: '0.5rem', textAlign: 'center',
+                                                    background: 'transparent',
+                                                    color: 'var(--text-secondary)', fontSize: '0.9rem'
+                                                }}>
+                                                    {ex.rest || 60}s
+                                                </div>
                                                 <button
                                                     onClick={() => toggleSetDone(i, setIdx)}
                                                     style={{
@@ -403,7 +498,7 @@ const Train = () => {
                                         );
                                     })}
                                 </div>
-                            </div >
+                            </div>
                         );
                     }
                 }
@@ -425,40 +520,78 @@ const Train = () => {
             </Modal>
 
             {/* Swap Modal */}
-            {swapModalOpen && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'rgba(0,0,0,0.9)', zIndex: 60,
-                    padding: '2rem',
-                    display: 'flex', flexDirection: 'column', alignItems: 'center'
-                }} onClick={() => setSwapModalOpen(false)}>
+            {
+                swapModalOpen && (
                     <div style={{
-                        width: '100%', maxWidth: '500px',
-                        background: 'var(--bg-secondary)',
-                        borderRadius: '12px',
-                        border: '1px solid var(--glass-border)',
-                        display: 'flex', flexDirection: 'column',
-                        maxHeight: '80vh',
-                        overflow: 'hidden'
-                    }} onClick={e => e.stopPropagation()}>
+                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                        background: 'rgba(0,0,0,0.9)', zIndex: 60,
+                        padding: '2rem',
+                        display: 'flex', flexDirection: 'column', alignItems: 'center'
+                    }} onClick={() => setSwapModalOpen(false)}>
+                        <div style={{
+                            width: '100%', maxWidth: '500px',
+                            background: 'var(--bg-secondary)',
+                            borderRadius: '12px',
+                            border: '1px solid var(--glass-border)',
+                            display: 'flex', flexDirection: 'column',
+                            maxHeight: '80vh',
+                            overflow: 'hidden'
+                        }} onClick={e => e.stopPropagation()}>
 
-                        <div style={{ padding: '1rem', borderBottom: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Swap Exercise</h3>
-                            <button onClick={() => setSwapModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)' }}><X size={20} /></button>
-                        </div>
+                            <div style={{ padding: '1rem', borderBottom: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <h3 style={{ margin: 0, fontSize: '1.2rem' }}>Swap Exercise</h3>
+                                <button onClick={() => setSwapModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)' }}><X size={20} /></button>
+                            </div>
 
-                        <div style={{ padding: '1rem', overflowY: 'auto' }}>
-                            {/* Suggested Variants */}
-                            {variantExercises.length > 0 && !swapSearch && (
-                                <div style={{ marginBottom: '1.5rem' }}>
-                                    <label style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold' }}>SUGGESTED VARIANTS</label>
+                            <div style={{ padding: '1rem', overflowY: 'auto' }}>
+                                {/* Suggested Variants */}
+                                {variantExercises.length > 0 && !swapSearch && (
+                                    <div style={{ marginBottom: '1.5rem' }}>
+                                        <label style={{ fontSize: '0.8rem', color: 'var(--accent-primary)', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold' }}>SUGGESTED VARIANTS</label>
+                                        <div style={{ display: 'grid', gap: '0.5rem' }}>
+                                            {variantExercises.map(ex => (
+                                                <div
+                                                    key={ex.id}
+                                                    onClick={() => handleReplaceExercise(ex)}
+                                                    className="glass-card"
+                                                    style={{ padding: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', border: '1px solid var(--accent-primary)' }}
+                                                >
+                                                    {ex.thumbnail && <img src={ex.thumbnail} alt="" style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: '4px' }} />}
+                                                    <div>
+                                                        <div style={{ fontWeight: 600 }}>{ex.name}</div>
+                                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{ex.muscle}</div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Search All */}
+                                <div>
+                                    <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>SEARCH ALL</label>
+                                    <div style={{ position: 'relative', marginBottom: '1rem' }}>
+                                        <input
+                                            autoFocus
+                                            type="text"
+                                            placeholder="Search exercises..."
+                                            value={swapSearch}
+                                            onChange={e => setSwapSearch(e.target.value)}
+                                            className="glass-input"
+                                            style={{ width: '100%', padding: '0.8rem 0.8rem 0.8rem 2.5rem' }}
+                                        />
+                                        <Search size={16} style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                                    </div>
+
                                     <div style={{ display: 'grid', gap: '0.5rem' }}>
-                                        {variantExercises.map(ex => (
+                                        {filteredSwapOptions.map(ex => (
                                             <div
                                                 key={ex.id}
                                                 onClick={() => handleReplaceExercise(ex)}
-                                                className="glass-card"
-                                                style={{ padding: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', border: '1px solid var(--accent-primary)' }}
+                                                style={{
+                                                    padding: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem',
+                                                    borderBottom: '1px solid var(--glass-border)'
+                                                }}
                                             >
                                                 {ex.thumbnail && <img src={ex.thumbnail} alt="" style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: '4px' }} />}
                                                 <div>
@@ -469,48 +602,41 @@ const Train = () => {
                                         ))}
                                     </div>
                                 </div>
-                            )}
-
-                            {/* Search All */}
-                            <div>
-                                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', display: 'block' }}>SEARCH ALL</label>
-                                <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                                    <input
-                                        autoFocus
-                                        type="text"
-                                        placeholder="Search exercises..."
-                                        value={swapSearch}
-                                        onChange={e => setSwapSearch(e.target.value)}
-                                        className="glass-input"
-                                        style={{ width: '100%', padding: '0.8rem 0.8rem 0.8rem 2.5rem' }}
-                                    />
-                                    <Search size={16} style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                                </div>
-
-                                <div style={{ display: 'grid', gap: '0.5rem' }}>
-                                    {filteredSwapOptions.map(ex => (
-                                        <div
-                                            key={ex.id}
-                                            onClick={() => handleReplaceExercise(ex)}
-                                            style={{
-                                                padding: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem',
-                                                borderBottom: '1px solid var(--glass-border)'
-                                            }}
-                                        >
-                                            {ex.thumbnail && <img src={ex.thumbnail} alt="" style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: '4px' }} />}
-                                            <div>
-                                                <div style={{ fontWeight: 600 }}>{ex.name}</div>
-                                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{ex.muscle}</div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
                             </div>
                         </div>
                     </div>
+                )
+            }
+            {/* Rest Timer Overlay */}
+            {restTimer.active && (
+                <div style={{
+                    position: 'fixed', bottom: 0, left: 0, right: 0,
+                    background: 'rgba(20, 20, 25, 0.95)',
+                    borderTop: '1px solid var(--accent-primary)',
+                    padding: '2rem 1rem',
+                    zIndex: 100,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    boxShadow: '0 -5px 20px rgba(0,0,0,0.5)',
+                    animation: 'slideUp 0.3s ease-out'
+                }} >
+                    <h3 style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '2px' }}>Resting</h3>
+                    <div style={{ fontSize: '3.5rem', fontWeight: 800, fontFamily: 'monospace', color: 'var(--accent-primary)', margin: '0.5rem 0' }}>
+                        {formatTime(restTimer.timeLeft)}
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                        <button onClick={() => adjustTimer(-10)} className="glass-card" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+                            <Minus size={16} /> 10s
+                        </button>
+                        <button onClick={() => adjustTimer(30)} className="glass-card" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
+                            <Plus size={16} /> 30s
+                        </button>
+                    </div>
+                    <button onClick={skipTimer} className="btn-secondary" style={{ width: '100%', maxWidth: '300px' }}>
+                        Skip Rest
+                    </button>
                 </div>
             )}
-        </div>
+        </div >
     );
 };
 

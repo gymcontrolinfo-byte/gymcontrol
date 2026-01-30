@@ -5,7 +5,10 @@ import { getExercises, saveSession, getMuscles } from '../services/db';
 import { Plus, Trash2, Save, Search, Filter, Play, Link, Unlink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Modal from './Modal';
+
 import ExerciseDetail from './ExerciseDetail';
+
+const MUSCLE_ORDER = ['Chest', 'Back', 'Legs', 'Shoulders', 'Biceps', 'Triceps', 'Core', 'Full Body'];
 
 const SessionForm = ({ onSave, onCancel, initialData }) => {
     const { t } = useTranslation();
@@ -24,7 +27,17 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
 
     useEffect(() => {
         setAvailableExercises(getExercises());
-        setMuscles(Object.keys(getMuscles()));
+
+        const rawMuscles = Object.keys(getMuscles());
+        const sortedMuscles = rawMuscles.sort((a, b) => {
+            const idxA = MUSCLE_ORDER.indexOf(a);
+            const idxB = MUSCLE_ORDER.indexOf(b);
+            if (idxA === -1 && idxB === -1) return a.localeCompare(b);
+            if (idxA === -1) return 1;
+            if (idxB === -1) return -1;
+            return idxA - idxB;
+        });
+        setMuscles(sortedMuscles);
     }, []);
 
     useEffect(() => {
@@ -55,6 +68,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                 sets: 3,
                 reps: 10,
                 weight: 0,
+                rest: 60,
                 thumbnail: ex.thumbnail,
                 videoId: ex.videoId
             }
@@ -117,6 +131,8 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
         const session = {
             id: initialData ? initialData.id : uuidv4(), // Preserve ID if editing
             name,
+
+
             exercises: selectedExercises,
             createdAt: initialData ? initialData.createdAt : new Date().toISOString()
         };
@@ -162,6 +178,8 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                     }}
                 />
             </div>
+
+
 
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: '200px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -231,6 +249,29 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                                     // Loop through the specific indices of this group
                                                     for (let k = i; k < j; k++) {
                                                         newEx[k].sets = val === '' ? '' : Number(val);
+                                                    }
+                                                    setSelectedExercises(newEx);
+                                                }}
+                                                style={{
+                                                    width: '50px',
+                                                    padding: '0.2rem',
+                                                    textAlign: 'center',
+                                                    background: 'var(--bg-primary)',
+                                                    border: '1px solid var(--accent-primary)',
+                                                    borderRadius: '4px',
+                                                    color: 'white',
+                                                    fontWeight: 'bold'
+                                                }}
+                                            />
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>Rest (s):</span>
+                                            <input
+                                                type="number"
+                                                value={supersetGroup[0].rest || 60}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    const newEx = [...selectedExercises];
+                                                    for (let k = i; k < j; k++) {
+                                                        newEx[k].rest = val === '' ? '' : Number(val);
                                                     }
                                                     setSelectedExercises(newEx);
                                                 }}
@@ -341,7 +382,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                             <button type="button" onClick={() => handleRemoveExercise(i)} style={{ background: 'none', border: 'none', color: 'var(--accent-danger)', cursor: 'pointer' }}><Trash2 size={16} /></button>
                                         </div>
                                     </div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.5rem' }}>
                                         <div className="flex-col" style={{ minWidth: 0 }}>
                                             <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('planner.sets')}</label>
                                             <input type="number" value={item.sets} onChange={(e) => handleUpdateDetails(i, 'sets', e.target.value === '' ? '' : Number(e.target.value))} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px', width: '100%' }} />
@@ -353,6 +394,10 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                         <div className="flex-col" style={{ minWidth: 0 }}>
                                             <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t('planner.kg')}</label>
                                             <input type="number" value={item.weight} onChange={(e) => handleUpdateDetails(i, 'weight', e.target.value === '' ? '' : Number(e.target.value))} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px', width: '100%' }} />
+                                        </div>
+                                        <div className="flex-col" style={{ minWidth: 0 }}>
+                                            <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Rest (s)</label>
+                                            <input type="number" value={item.rest || 60} onChange={(e) => handleUpdateDetails(i, 'rest', e.target.value === '' ? '' : Number(e.target.value))} style={{ background: 'var(--bg-primary)', border: 'none', color: 'white', padding: '0.3rem', borderRadius: '4px', width: '100%' }} />
                                         </div>
                                     </div>
                                 </div>
@@ -389,7 +434,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                         </div>
 
                         {/* Muscle Filter Scroll */}
-                        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', paddingBottom: '0.5rem', maxHeight: '80px', overflowY: 'auto' }}>
                             <button
                                 type="button"
                                 onClick={() => { setMuscleFilter(''); setSubMuscleFilter(''); }}

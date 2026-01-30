@@ -111,7 +111,8 @@
         "kg": "Kg",
         "all": "Todos",
         "errorName": "Nombre de sesión requerido",
-        "errorExercise": "Añade al menos un ejercicio"
+        "errorExercise": "Añade al menos un ejercicio",
+        "restTime": "Descanso (seg)"
     },
     "stats": {
         "title": "Progreso",

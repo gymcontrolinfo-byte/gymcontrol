@@ -101,7 +101,8 @@
         "kg": "Kg",
         "all": "All",
         "errorName": "Session Name Required",
-        "errorExercise": "Add at least one exercise"
+        "errorExercise": "Add at least one exercise",
+        "restTime": "Rest Time (sec)"
     },
     "stats": {
         "title": "Progress",
