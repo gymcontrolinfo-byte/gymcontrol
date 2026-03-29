@@ -5,7 +5,9 @@ import { User, LogOut, Check, X, Camera, Settings, Moon, Sun, Globe, Shield } fr
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { db } from '../firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { subscribe } from '../services/db';
+import { useEffect } from 'react';
 
 const Profile = () => {
     const { currentUser, logout } = useAuth();
@@ -14,9 +16,31 @@ const Profile = () => {
 
     const [displayName, setDisplayName] = useState(currentUser?.displayName || '');
     const [photoURL, setPhotoURL] = useState(currentUser?.photoURL || '');
+    const [age, setAge] = useState('');
+    const [height, setHeight] = useState('');
+    const [weight, setWeight] = useState('');
+    const [sex, setSex] = useState('other');
+    const [frequency, setFrequency] = useState('3-4');
+    const [injuries, setInjuries] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const unsubscribe = subscribe((data) => {
+            if (data.user) {
+                if (data.user.displayName) setDisplayName(data.user.displayName);
+                if (data.user.photoURL) setPhotoURL(data.user.photoURL);
+                if (data.user.age) setAge(data.user.age);
+                if (data.user.height) setHeight(data.user.height);
+                if (data.user.weight) setWeight(data.user.weight);
+                if (data.user.sex) setSex(data.user.sex);
+                if (data.user.frequency) setFrequency(data.user.frequency);
+                if (data.user.injuries) setInjuries(data.user.injuries);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
 
     const handleUpdate = async (e) => {
         e.preventDefault();
@@ -27,8 +51,24 @@ const Profile = () => {
         try {
             await updateProfile(currentUser, {
                 displayName,
-                // photoURL // Don't update photoURL in Auth if it's too long
             });
+
+            // Save all metadata to Firestore
+            const userRef = doc(db, 'users', currentUser.uid);
+            await setDoc(userRef, {
+                user: {
+                    displayName,
+                    email: currentUser.email,
+                    age,
+                    height,
+                    weight,
+                    sex,
+                    frequency,
+                    injuries,
+                    photoURL // Keep existing photoURL
+                }
+            }, { merge: true });
+
             setMessage(t('profile.saveSuccess'));
         } catch (err) {
             setError('Failed to update profile. ' + err.message);
@@ -218,6 +258,81 @@ const Profile = () => {
                         onChange={(e) => setDisplayName(e.target.value)}
                         placeholder="John Doe"
                         className="input-field"
+                    />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="input-group">
+                        <label style={{ display: 'block', marginBottom: '0.5rem', marginLeft: '0.5rem' }}>{t('profile.age')}</label>
+                        <input
+                            type="number"
+                            value={age}
+                            onChange={(e) => setAge(e.target.value)}
+                            placeholder="25"
+                            className="input-field"
+                        />
+                    </div>
+                    <div className="input-group">
+                        <label style={{ display: 'block', marginBottom: '0.5rem', marginLeft: '0.5rem' }}>{t('profile.sex.title')}</label>
+                        <select
+                            value={sex}
+                            onChange={(e) => setSex(e.target.value)}
+                            className="input-field"
+                            style={{ background: 'var(--bg-secondary)', color: 'white' }}
+                        >
+                            <option value="male">{t('profile.sex.male')}</option>
+                            <option value="female">{t('profile.sex.female')}</option>
+                            <option value="other">{t('profile.sex.other')}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="input-group">
+                        <label style={{ display: 'block', marginBottom: '0.5rem', marginLeft: '0.5rem' }}>{t('profile.height')}</label>
+                        <input
+                            type="number"
+                            value={height}
+                            onChange={(e) => setHeight(e.target.value)}
+                            placeholder="175"
+                            className="input-field"
+                        />
+                    </div>
+                    <div className="input-group">
+                        <label style={{ display: 'block', marginBottom: '0.5rem', marginLeft: '0.5rem' }}>{t('profile.weight')}</label>
+                        <input
+                            type="number"
+                            value={weight}
+                            onChange={(e) => setWeight(e.target.value)}
+                            placeholder="70"
+                            className="input-field"
+                        />
+                    </div>
+                </div>
+
+                <div className="input-group">
+                    <label style={{ display: 'block', marginBottom: '0.5rem', marginLeft: '0.5rem' }}>{t('profile.frequency.title')}</label>
+                    <select
+                        value={frequency}
+                        onChange={(e) => setFrequency(e.target.value)}
+                        className="input-field"
+                        style={{ background: 'var(--bg-secondary)', color: 'white' }}
+                    >
+                        <option value="1-2">{t('profile.frequency.1-2')}</option>
+                        <option value="3-4">{t('profile.frequency.3-4')}</option>
+                        <option value="5-6">{t('profile.frequency.5-6')}</option>
+                        <option value="7">{t('profile.frequency.7')}</option>
+                    </select>
+                </div>
+
+                <div className="input-group">
+                    <label style={{ display: 'block', marginBottom: '0.5rem', marginLeft: '0.5rem' }}>{t('profile.injuries')}</label>
+                    <textarea
+                        value={injuries}
+                        onChange={(e) => setInjuries(e.target.value)}
+                        placeholder="e.g. Lower back pain, knee injury..."
+                        className="input-field"
+                        style={{ minHeight: '80px', paddingTop: '0.8rem' }}
                     />
                 </div>
 

@@ -66,7 +66,40 @@
         "name": "Name",
         "weight": "Weight (kg)",
         "height": "Height (cm)",
+        "age": "Age",
+        "sex": {
+            "title": "Sex",
+            "male": "Male",
+            "female": "Female",
+            "other": "Other"
+        },
+        "frequency": {
+            "title": "Training Frequency",
+            "1-2": "1-2 days per week",
+            "3-4": "3-4 days per week",
+            "5-6": "5-6 days per week",
+            "7": "Every day (7 days)"
+        },
+        "injuries": "Pains or Injuries",
         "saveSuccess": "Profile saved successfully"
+    },
+    "ai": {
+        "title": "AI Assistant",
+        "askMuscles": "Which body parts do you want to train today?",
+        "suggestButton": "Suggest what to train",
+        "generateButton": "Generate Routine",
+        "thinking": "Assistant is designing your custom routine...",
+        "noExercises": "You don't have exercises in your library for these areas. Add them first!",
+        "saveRoutine": "Save to my Plans",
+        "chest": "Chest",
+        "triceps": "Triceps",
+        "back": "Back",
+        "biceps": "Biceps",
+        "frontLeg": "Front Leg",
+        "backLeg": "Back Leg",
+        "leg": "Leg",
+        "shoulder": "Shoulder",
+        "forearm": "Forearm"
     },
     "library": {
         "title": "Exercise Library",

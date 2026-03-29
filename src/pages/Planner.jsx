@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { getSessions, deleteSession, sharePlan, getPendingShares, resolveShare, saveSession, saveExercise, getExercises, toggleSessionFavorite } from '../services/db';
 import Modal from '../components/Modal'; // Ensure single import
 import SessionForm from '../components/SessionForm';
-import { Plus, Play, Trash2, Calendar, ClipboardList, Share2, Inbox, Check, X, Download, Heart, Clock } from 'lucide-react';
+import AIAssistant from '../components/AIAssistant';
+import { Plus, Play, Trash2, Calendar, ClipboardList, Share2, Inbox, Check, X, Download, Heart, Clock, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +21,7 @@ const Planner = () => {
     const [planToShare, setPlanToShare] = useState(null);
     const [recipientEmail, setRecipientEmail] = useState('');
     const [isInboxOpen, setIsInboxOpen] = useState(false);
+    const [isAIModalOpen, setIsAIModalOpen] = useState(false);
     const [pendingShares, setPendingShares] = useState([]);
 
     const navigate = useNavigate();
@@ -39,6 +41,7 @@ const Planner = () => {
     const handleSaved = () => {
         setSessions(getSessions());
         setIsModalOpen(false);
+        setIsAIModalOpen(false);
         setEditingSession(null);
     };
 
@@ -137,6 +140,14 @@ const Planner = () => {
             <div className="flex-center" style={{ justifyContent: 'space-between' }}>
                 <h2 className="text-gradient" style={{ margin: 0 }}>{t('planner.title')}</h2>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                        className="btn btn-secondary btn-icon"
+                        onClick={() => setIsAIModalOpen(true)}
+                        style={{ borderRadius: 'var(--radius-full)', width: '40px', height: '40px', background: 'rgba(139, 92, 246, 0.1)', border: '1px solid var(--accent-primary)', color: 'var(--accent-primary)' }}
+                        title="AI Assistant"
+                    >
+                        <Sparkles size={20} style={{ minWidth: '20px', minHeight: '20px' }} />
+                    </button>
                     <button
                         className="btn btn-secondary btn-icon"
                         onClick={() => { loadInbox(); setIsInboxOpen(true); }}
@@ -254,6 +265,11 @@ const Planner = () => {
                         ))
                     )}
                 </div>
+            </Modal>
+
+            {/* AI Assistant Modal */}
+            <Modal isOpen={isAIModalOpen} onClose={() => setIsAIModalOpen(false)} title={t('ai.title')}>
+                <AIAssistant onSave={handleSaved} onCancel={() => setIsAIModalOpen(false)} />
             </Modal>
         </div>
     );

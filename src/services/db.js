@@ -103,6 +103,7 @@ export const dbData = {
         "Biceps": ["Long Head", "Short Head"],
         "Triceps": ["Long Head", "Lateral Head", "Medial Head"],
         "Core": ["Upper Abs", "Lower Abs", "Obliques"],
+        "Forearm": [],
         "Full Body": []
     }
 };
