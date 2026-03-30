@@ -26,6 +26,7 @@ const AIAssistant = ({ onSave, onCancel }) => {
     const [generatedPlan, setGeneratedPlan] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [expandedNotes, setExpandedNotes] = useState({}); // { [sectionIdx_exIdx]: boolean }
 
     useEffect(() => {
         const unsub = subscribe((data) => {
@@ -41,6 +42,11 @@ const AIAssistant = ({ onSave, onCancel }) => {
         setSelectedMuscles(prev => 
             prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
         );
+    };
+
+    const toggleNote = (sIdx, idx) => {
+        const key = `${sIdx}_${idx}`;
+        setExpandedNotes(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
     const handleSuggest = async () => {
@@ -258,12 +264,28 @@ const AIAssistant = ({ onSave, onCancel }) => {
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                                                         <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{ex.name}</div>
                                                         {fullEx?.notes && (
-                                                            <div title={fullEx.notes} style={{ color: 'var(--accent-primary)', cursor: 'help' }}>
-                                                                <MessageSquareText size={12} />
+                                                            <div 
+                                                                onClick={() => toggleNote(sIdx, idx)} 
+                                                                style={{ color: 'var(--accent-primary)', cursor: 'pointer' }}
+                                                            >
+                                                                <MessageSquareText size={14} />
                                                             </div>
                                                         )}
                                                     </div>
                                                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{ex.sets} sets x {ex.reps} reps</div>
+                                                    {expandedNotes[`${sIdx}_${idx}`] && fullEx?.notes && (
+                                                        <div className="fade-in" style={{ 
+                                                            marginTop: '0.4rem', 
+                                                            fontSize: '0.75rem', 
+                                                            color: 'var(--text-secondary)',
+                                                            padding: '0.4rem 0.6rem',
+                                                            background: 'rgba(255,255,255,0.03)',
+                                                            borderRadius: '4px',
+                                                            borderLeft: '2px solid var(--accent-primary)'
+                                                        }}>
+                                                            {fullEx.notes}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         );

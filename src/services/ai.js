@@ -46,16 +46,18 @@ export const generateWorkoutPlan = async (userProfile, selectedMuscles, availabl
                     {
                         "exerciseId": "The ID of the exercise from the list",
                         "name": "The Name of the exercise",
-                        "sets": "number of sets (e.g. 3)",
-                        "reps": "number of reps or time (e.g. 12 or 30s)",
-                        "rest": "rest time after each COMPLETE set of the section in seconds (e.g. 60-90)"
+                        "sets": number of sets,
+                        "reps": number of reps,
+                        "rest": rest time after EACH set in seconds
                     }
                 ],
-                "coachAdvice": "Short note specific to this section if needed"
+                "coachAdvice": "Short tactical advice for this SECTION only (e.g. 'No rest between exercises' or 'Hold contraction'). DO NOT add notes for individual exercises."
             }
         ],
-        "coachAdvice": "General advice from the coach based on the user profile"
+        "coachAdvice": "Overall motivational/tactical advice for the entire session"
     }
+
+    IMPORTANT: DO NOT add a "notes" field to individual exercises. The user adds those manually. Only include structural/tactical advice for the group or the whole session.
 
     Return ONLY the JSON object. Do not include any markdown formatting or extra text.
     `;

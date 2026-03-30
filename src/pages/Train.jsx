@@ -22,6 +22,7 @@ const Train = () => {
     const [swapModalOpen, setSwapModalOpen] = useState(false);
     const [swapIndex, setSwapIndex] = useState(null);
     const [swapSearch, setSwapSearch] = useState('');
+    const [expandedNotes, setExpandedNotes] = useState({}); // { [uniqueKey]: boolean }
 
     // Rest Timer State
     const [restTimer, setRestTimer] = useState({ active: false, timeLeft: 0, total: 0 });
@@ -155,6 +156,10 @@ const Train = () => {
 
     const skipTimer = () => {
         setRestTimer(prev => ({ ...prev, active: false }));
+    };
+
+    const toggleNote = (key) => {
+        setExpandedNotes(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
     const handleFinish = () => {
@@ -323,9 +328,28 @@ const Train = () => {
                                                         }}>
                                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden' }}>
                                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0 }}>
-                                                                    <span style={{ fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 600 }} title={subEx.name}>{subEx.name}</span>
+                                                                    <div className="flex-col" style={{ minWidth: 0, overflow: 'hidden' }}>
+                                                                        <span style={{ fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 600 }} title={subEx.name}>{subEx.name}</span>
+                                                                        {expandedNotes[`group-${globalIdx}`] && (
+                                                                            <div className="fade-in" style={{ 
+                                                                                fontSize: '0.7rem', 
+                                                                                color: 'var(--text-secondary)',
+                                                                                padding: '0.2rem 0.4rem',
+                                                                                background: 'rgba(255,255,255,0.03)',
+                                                                                borderRadius: '3px',
+                                                                                borderLeft: '2px solid var(--accent-primary)',
+                                                                                marginTop: '0.2rem',
+                                                                                whiteSpace: 'normal'
+                                                                            }}>
+                                                                                {allExercises.find(e => e.id === subEx.exerciseId).notes}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
                                                                     {allExercises.find(e => e.id === subEx.exerciseId)?.notes && (
-                                                                        <div title={allExercises.find(e => e.id === subEx.exerciseId).notes} style={{ color: 'var(--accent-primary)', cursor: 'help', flexShrink: 0 }}>
+                                                                        <div 
+                                                                            onClick={() => toggleNote(`group-${globalIdx}`)} 
+                                                                            style={{ color: 'var(--accent-primary)', cursor: 'pointer', flexShrink: 0 }}
+                                                                        >
                                                                             <MessageSquareText size={12} />
                                                                         </div>
                                                                     )}
@@ -414,11 +438,29 @@ const Train = () => {
                             <div key={i} className="glass-card fade-in" style={{ padding: '1rem', overflow: 'hidden' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                            <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{ex.name}</h3>
-                                            {allExercises.find(e => e.id === ex.exerciseId)?.notes && (
-                                                <div title={allExercises.find(e => e.id === ex.exerciseId).notes} style={{ color: 'var(--accent-primary)', cursor: 'help', flexShrink: 0 }}>
-                                                    <MessageSquareText size={14} />
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{ex.name}</h3>
+                                                {allExercises.find(e => e.id === ex.exerciseId)?.notes && (
+                                                    <div 
+                                                        onClick={() => toggleNote(`normal-${i}`)} 
+                                                        style={{ color: 'var(--accent-primary)', cursor: 'pointer', flexShrink: 0 }}
+                                                    >
+                                                        <MessageSquareText size={14} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {expandedNotes[`normal-${i}`] && (
+                                                <div className="fade-in" style={{ 
+                                                    marginTop: '0.4rem', 
+                                                    fontSize: '0.75rem', 
+                                                    color: 'var(--text-secondary)',
+                                                    padding: '0.4rem 0.6rem',
+                                                    background: 'rgba(255,255,255,0.03)',
+                                                    borderRadius: '4px',
+                                                    borderLeft: '2px solid var(--accent-primary)'
+                                                }}>
+                                                    {allExercises.find(e => e.id === ex.exerciseId).notes}
                                                 </div>
                                             )}
                                         </div>

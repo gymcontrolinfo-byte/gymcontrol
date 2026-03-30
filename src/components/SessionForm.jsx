@@ -20,6 +20,7 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
     const [muscleFilter, setMuscleFilter] = useState('');
     const [subMuscleFilter, setSubMuscleFilter] = useState('');
     const [selectedForGroup, setSelectedForGroup] = useState([]); // Array of indices selected for grouping
+    const [expandedNotes, setExpandedNotes] = useState({}); // { [uniqueKey]: boolean }
 
     // Video Preview State
     const [previewVideoId, setPreviewVideoId] = useState(null);
@@ -96,6 +97,10 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
         } else {
             setSelectedForGroup([...selectedForGroup, idx]);
         }
+    };
+
+    const toggleNote = (key) => {
+        setExpandedNotes(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
     const handleCreateSuperset = () => {
@@ -324,11 +329,27 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                                                                     <span style={{ fontWeight: 600, color: 'white' }}>{subEx.name}</span>
                                                                     {availableExercises.find(e => e.id === subEx.exerciseId)?.notes && (
-                                                                        <div title={availableExercises.find(e => e.id === subEx.exerciseId).notes} style={{ color: 'var(--accent-primary)', cursor: 'help' }}>
-                                                                            <MessageSquareText size={12} />
+                                                                        <div 
+                                                                            onClick={() => toggleNote(`group-${globalIdx}`)} 
+                                                                            style={{ color: 'var(--accent-primary)', cursor: 'pointer' }}
+                                                                        >
+                                                                            <MessageSquareText size={14} />
                                                                         </div>
                                                                     )}
                                                                 </div>
+                                                                {expandedNotes[`group-${globalIdx}`] && (
+                                                                    <div className="fade-in" style={{ 
+                                                                        marginTop: '0.4rem', 
+                                                                        fontSize: '0.75rem', 
+                                                                        color: 'var(--text-secondary)',
+                                                                        padding: '0.4rem 0.6rem',
+                                                                        background: 'rgba(255,255,255,0.03)',
+                                                                        borderRadius: '4px',
+                                                                        borderLeft: '2px solid var(--accent-primary)'
+                                                                    }}>
+                                                                        {availableExercises.find(e => e.id === subEx.exerciseId).notes}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                         <button type="button" onClick={() => handleRemoveExercise(globalIdx)} style={{ background: 'none', border: 'none', color: 'var(--accent-danger)', cursor: 'pointer' }}><Trash2 size={16} /></button>
@@ -384,11 +405,27 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                                                     <span style={{ fontWeight: 600, color: 'var(--accent-primary)' }}>{item.name}</span>
                                                     {availableExercises.find(e => e.id === item.exerciseId)?.notes && (
-                                                        <div title={availableExercises.find(e => e.id === item.exerciseId).notes} style={{ color: 'var(--accent-primary)', cursor: 'help' }}>
-                                                            <MessageSquareText size={12} />
+                                                        <div 
+                                                            onClick={() => toggleNote(`normal-${i}`)} 
+                                                            style={{ color: 'var(--accent-primary)', cursor: 'pointer' }}
+                                                        >
+                                                            <MessageSquareText size={14} />
                                                         </div>
                                                     )}
                                                 </div>
+                                                {expandedNotes[`normal-${i}`] && (
+                                                    <div className="fade-in" style={{ 
+                                                        marginTop: '0.4rem', 
+                                                        fontSize: '0.75rem', 
+                                                        color: 'var(--text-secondary)',
+                                                        padding: '0.4rem 0.6rem',
+                                                        background: 'rgba(255,255,255,0.03)',
+                                                        borderRadius: '4px',
+                                                        borderLeft: '2px solid var(--accent-primary)'
+                                                    }}>
+                                                        {availableExercises.find(e => e.id === item.exerciseId).notes}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                         <div style={{ display: 'flex', gap: '0.5rem' }}>
