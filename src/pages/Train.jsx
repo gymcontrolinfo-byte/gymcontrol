@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getSessions, saveLog, getExercises } from '../services/db';
 import { v4 as uuidv4 } from 'uuid';
-import { Timer, CheckCircle, ArrowLeft, Play, Save, Link, Repeat, Search, X, Plus, Minus } from 'lucide-react';
+import { Timer, CheckCircle, ArrowLeft, Play, Save, Link, Repeat, Search, X, Plus, Minus, MessageSquareText } from 'lucide-react';
 import Modal from '../components/Modal';
 import ExerciseDetail from '../components/ExerciseDetail';
 
@@ -322,7 +322,14 @@ const Train = () => {
                                                             transition: 'all 0.3s ease'
                                                         }}>
                                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden' }}>
-                                                                <span style={{ fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={subEx.name}>{subEx.name}</span>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0 }}>
+                                                                    <span style={{ fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 600 }} title={subEx.name}>{subEx.name}</span>
+                                                                    {allExercises.find(e => e.id === subEx.exerciseId)?.notes && (
+                                                                        <div title={allExercises.find(e => e.id === subEx.exerciseId).notes} style={{ color: 'var(--accent-primary)', cursor: 'help', flexShrink: 0 }}>
+                                                                            <MessageSquareText size={12} />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                                 {vidId && (
                                                                     <button
                                                                         onClick={() => handleViewExercise(subEx)}
@@ -407,7 +414,14 @@ const Train = () => {
                             <div key={i} className="glass-card fade-in" style={{ padding: '1rem', overflow: 'hidden' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{ex.name}</h3>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                            <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{ex.name}</h3>
+                                            {allExercises.find(e => e.id === ex.exerciseId)?.notes && (
+                                                <div title={allExercises.find(e => e.id === ex.exerciseId).notes} style={{ color: 'var(--accent-primary)', cursor: 'help', flexShrink: 0 }}>
+                                                    <MessageSquareText size={14} />
+                                                </div>
+                                            )}
+                                        </div>
                                         {vidId && (
                                             <button
                                                 onClick={() => handleViewExercise(ex)}

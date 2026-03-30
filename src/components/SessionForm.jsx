@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { getExercises, saveSession, getMuscles } from '../services/db';
-import { Plus, Trash2, Save, Search, Filter, Play, Link, Unlink } from 'lucide-react';
+import { Plus, Trash2, Save, Search, Filter, Play, Link, Unlink, MessageSquareText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Modal from './Modal';
 
@@ -322,7 +321,14 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                                                 </div>
                                                             )}
                                                             <div className="flex-col">
-                                                                <span style={{ fontWeight: 600, color: 'white' }}>{subEx.name}</span>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                                    <span style={{ fontWeight: 600, color: 'white' }}>{subEx.name}</span>
+                                                                    {availableExercises.find(e => e.id === subEx.exerciseId)?.notes && (
+                                                                        <div title={availableExercises.find(e => e.id === subEx.exerciseId).notes} style={{ color: 'var(--accent-primary)', cursor: 'help' }}>
+                                                                            <MessageSquareText size={12} />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <button type="button" onClick={() => handleRemoveExercise(globalIdx)} style={{ background: 'none', border: 'none', color: 'var(--accent-danger)', cursor: 'pointer' }}><Trash2 size={16} /></button>
@@ -375,7 +381,14 @@ const SessionForm = ({ onSave, onCancel, initialData }) => {
                                                 </div>
                                             )}
                                             <div className="flex-col">
-                                                <span style={{ fontWeight: 600, color: 'var(--accent-primary)' }}>{item.name}</span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                    <span style={{ fontWeight: 600, color: 'var(--accent-primary)' }}>{item.name}</span>
+                                                    {availableExercises.find(e => e.id === item.exerciseId)?.notes && (
+                                                        <div title={availableExercises.find(e => e.id === item.exerciseId).notes} style={{ color: 'var(--accent-primary)', cursor: 'help' }}>
+                                                            <MessageSquareText size={12} />
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                         <div style={{ display: 'flex', gap: '0.5rem' }}>
