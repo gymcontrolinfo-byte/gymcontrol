@@ -155,7 +155,7 @@ const ExerciseDetail = ({ exercise, onClose }) => {
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Add cue notes here (e.g. 'Seat height 4', 'Elbows in')..."
                         style={{
-                            flex: 1,
+                            minHeight: '180px',
                             width: '100%',
                             background: 'transparent',
                             border: 'none',
@@ -163,7 +163,8 @@ const ExerciseDetail = ({ exercise, onClose }) => {
                             resize: 'none',
                             outline: 'none',
                             fontSize: '0.9rem',
-                            lineHeight: '1.5'
+                            lineHeight: '1.5',
+                            fontFamily: 'inherit'
                         }}
                     />
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
