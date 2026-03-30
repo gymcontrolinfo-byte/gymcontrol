@@ -5,7 +5,7 @@ import { getFirestore } from "firebase/firestore";
 // TODO: Replace the following with your app's Firebase project configuration
 // See: https://firebase.google.com/docs/web/setup#config
 const firebaseConfig = {
-    apiKey: "AIzaSyCeiqWoij3LnEgSc0KY8Ds-xm4oY8PUg5Y",
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: "gym-pro-control.firebaseapp.com",
     projectId: "gym-pro-control",
     storageBucket: "gym-pro-control.firebasestorage.app",
