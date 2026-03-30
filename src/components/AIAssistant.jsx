@@ -83,19 +83,32 @@ const AIAssistant = ({ onSave, onCancel }) => {
                 return group ? group.label.split('.').pop() : id;
             });
 
-            const plan = await generateWorkoutPlan(userProfile, muscleContext, availableExercises, i18n.language);
+            const rawPlan = await generateWorkoutPlan(userProfile, muscleContext, availableExercises, i18n.language);
             
-            // Enrich plan with videoIds/thumbnails from availableExercises
-            const enrichedExercises = plan.exercises.map(pe => {
-                const ex = availableExercises.find(ae => ae.id === pe.exerciseId);
-                return {
-                    ...pe,
-                    thumbnail: ex?.thumbnail,
-                    videoId: ex?.videoId
-                };
-            }).filter(e => e.exerciseId); // Only keep exercises that were actually found
+            // Flatten sections into exercises with supersetId
+            const flattenedExercises = [];
+            rawPlan.sections.forEach(section => {
+                const supersetId = (section.type === 'superset' || section.type === 'triset') ? uuidv4() : null;
+                
+                section.exercises.forEach(pe => {
+                    const ex = availableExercises.find(ae => ae.id === pe.exerciseId);
+                    if (ex) {
+                        flattenedExercises.push({
+                            ...pe,
+                            supersetId,
+                            thumbnail: ex.thumbnail,
+                            videoId: ex.videoId
+                        });
+                    }
+                });
+            });
 
-            setGeneratedPlan({ ...plan, exercises: enrichedExercises });
+            setGeneratedPlan({ 
+                name: rawPlan.name, 
+                coachAdvice: rawPlan.coachAdvice,
+                exercises: flattenedExercises,
+                sections: rawPlan.sections // Keep sections for the preview UI
+            });
             setStep(3);
         } catch (err) {
             setError('Error generating plan: ' + err.message);
@@ -111,7 +124,7 @@ const AIAssistant = ({ onSave, onCancel }) => {
         const session = {
             id: uuidv4(),
             name: generatedPlan.name + " (AI)",
-            exercises: generatedPlan.exercises,
+            exercises: generatedPlan.exercises, // Already flattened in handleGenerate
             createdAt: new Date().toISOString()
         };
 
@@ -219,17 +232,51 @@ const AIAssistant = ({ onSave, onCancel }) => {
                         </div>
                     </div>
 
-                    <div className="flex-col" style={{ gap: '0.8rem' }}>
+                    <div className="flex-col" style={{ gap: '1.2rem' }}>
                         <h4 style={{ fontSize: '1rem' }}>{t('planner.exercises')}</h4>
-                        {generatedPlan.exercises.map((ex, idx) => (
-                            <div key={idx} className="glass-card" style={{ padding: '0.8rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <div style={{ width: 60, height: 35, background: '#000', borderRadius: '4px', overflow: 'hidden' }}>
-                                    {ex.thumbnail ? <img src={ex.thumbnail} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Sparkles size={14} /></div>}
+                        {generatedPlan.sections.map((section, sIdx) => (
+                            <div key={sIdx} className="glass-card" style={{ 
+                                padding: '0', 
+                                overflow: 'hidden',
+                                border: section.type !== 'standard' ? '1px solid var(--accent-primary)' : '1px solid var(--glass-border)',
+                                background: section.type !== 'standard' ? 'rgba(139, 92, 246, 0.05)' : 'transparent'
+                            }}>
+                                {section.type !== 'standard' && (
+                                    <div style={{ padding: '0.4rem 0.8rem', background: 'var(--accent-primary)', color: 'white', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                                        {section.type === 'superset' ? 'Biserie' : 'Triserie'}
+                                    </div>
+                                )}
+                                <div style={{ padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                                    {section.exercises.map((ex, idx) => {
+                                        const fullEx = availableExercises.find(a => a.id === ex.exerciseId);
+                                        return (
+                                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                                <div style={{ width: 50, height: 30, background: '#000', borderRadius: '4px', overflow: 'hidden', flexShrink: 0 }}>
+                                                    {fullEx?.thumbnail ? <img src={fullEx.thumbnail} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Sparkles size={12} /></div>}
+                                                </div>
+                                                <div style={{ flex: 1 }}>
+                                                    <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{ex.name}</div>
+                                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{ex.sets} sets x {ex.reps} reps</div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                    {section.coachAdvice && (
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', borderTop: '1px solid rgba(139, 92, 246, 0.2)', paddingTop: '0.5rem', marginTop: '0.2rem' }}>
+                                            💡 {section.coachAdvice}
+                                        </div>
+                                    )}
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{ex.name}</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{ex.sets} sets x {ex.reps} reps • {ex.rest}s rest</div>
-                                </div>
+                                {section.type === 'standard' && section.exercises[0] && (
+                                    <div style={{ padding: '0.5rem 0.8rem', fontSize: '0.7rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid var(--glass-border)' }}>
+                                        Descanso: {section.exercises[0].rest}s
+                                    </div>
+                                )}
+                                {section.type !== 'standard' && section.exercises[0] && (
+                                    <div style={{ padding: '0.5rem 0.8rem', fontSize: '0.7rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(139, 92, 246, 0.2)' }}>
+                                        Descanso tras la serie: {section.exercises[0].rest}s
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>

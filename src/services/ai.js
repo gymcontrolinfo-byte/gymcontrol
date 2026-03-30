@@ -37,16 +37,22 @@ export const generateWorkoutPlan = async (userProfile, selectedMuscles, availabl
     Response format MUST be a valid JSON object with the following structure:
     {
         "name": "Name of the workout session",
-        "exercises": [
+        "sections": [
             {
-                "exerciseId": "The ID of the exercise from the list",
-                "name": "The Name of the exercise",
-                "sets": "number of sets (e.g. 3)",
-                "reps": "number of reps or time (e.g. 12 or 30s)",
-                "rest": "rest time in seconds (e.g. 60)"
+                "type": "standard", // "standard", "superset" (2 exercises), or "triset" (3 exercises)
+                "exercises": [
+                    {
+                        "exerciseId": "The ID of the exercise from the list",
+                        "name": "The Name of the exercise",
+                        "sets": "number of sets (e.g. 3)",
+                        "reps": "number of reps or time (e.g. 12 or 30s)",
+                        "rest": "rest time after each COMPLETE set of the section in seconds (e.g. 60-90)"
+                    }
+                ],
+                "coachAdvice": "Short note specific to this section if needed"
             }
         ],
-        "coachAdvice": "Short advice from the coach based on the user profile"
+        "coachAdvice": "General advice from the coach based on the user profile"
     }
 
     Return ONLY the JSON object. Do not include any markdown formatting or extra text.
