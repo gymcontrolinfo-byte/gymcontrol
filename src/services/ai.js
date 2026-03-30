@@ -8,7 +8,7 @@ const getModel = (modelName = "gemini-2.5-flash") => {
     return genAI.getGenerativeModel({ model: modelName }, { apiVersion: 'v1beta' });
 };
 
-export const generateWorkoutPlan = async (userProfile, selectedMuscles, availableExercises) => {
+export const generateWorkoutPlan = async (userProfile, selectedMuscles, availableExercises, language = 'en') => {
     let model = getModel("gemini-2.5-flash");
 
     const prompt = `
@@ -25,6 +25,10 @@ export const generateWorkoutPlan = async (userProfile, selectedMuscles, availabl
 
     Available exercises in the user's library (use ONLY these exercises):
     ${availableExercises.map(ex => `- ID: ${ex.id}, Name: ${ex.name}, Target Muscle: ${ex.muscle}, Type: ${ex.type}`).join("\n")}
+
+    LANGUAGE: ${language === 'es' ? 'Spanish (Español)' : 'English'}
+    - You MUST return the plan name and the coachAdvice in ${language === 'es' ? 'Spanish' : 'English'}.
+    - The exercise names MUST match the "Name" from the available exercises list provided.
 
     If the user didn't specify muscle groups, suggest a balanced workout based on their profile.
     
@@ -69,7 +73,7 @@ export const generateWorkoutPlan = async (userProfile, selectedMuscles, availabl
     }
 };
 
-export const suggestMuscles = async (userProfile) => {
+export const suggestMuscles = async (userProfile, language = 'en') => {
     let model = getModel("gemini-2.5-flash");
 
     const prompt = `
@@ -81,6 +85,8 @@ export const suggestMuscles = async (userProfile) => {
     - Injuries: ${userProfile.injuries || "None"}
 
     Available Muscle Groups: Chest, Triceps, Back, Biceps, Front Leg, Back Leg, Leg, Shoulder, Forearm.
+
+    LANGUAGE: ${language === 'es' ? 'Spanish' : 'English'}
 
     Response format MUST be a valid JSON array of strings, e.g. ["Chest", "Triceps"].
     Return ONLY the JSON array.

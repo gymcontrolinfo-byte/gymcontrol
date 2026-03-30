@@ -18,7 +18,7 @@ const MUSCLE_GROUPS = [
 ];
 
 const AIAssistant = ({ onSave, onCancel }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [userProfile, setUserProfile] = useState(null);
     const [availableExercises, setAvailableExercises] = useState([]);
     const [selectedMuscles, setSelectedMuscles] = useState([]);
@@ -46,7 +46,7 @@ const AIAssistant = ({ onSave, onCancel }) => {
     const handleSuggest = async () => {
         setLoading(true);
         try {
-            const suggestions = await suggestMuscles(userProfile);
+            const suggestions = await suggestMuscles(userProfile, i18n.language);
             // Map internal suggestions back to IDs
             const suggestedIds = MUSCLE_GROUPS
                 .filter(m => suggestions.includes(m.internal) || suggestions.includes(m.id))
@@ -83,7 +83,7 @@ const AIAssistant = ({ onSave, onCancel }) => {
                 return group ? group.label.split('.').pop() : id;
             });
 
-            const plan = await generateWorkoutPlan(userProfile, muscleContext, availableExercises);
+            const plan = await generateWorkoutPlan(userProfile, muscleContext, availableExercises, i18n.language);
             
             // Enrich plan with videoIds/thumbnails from availableExercises
             const enrichedExercises = plan.exercises.map(pe => {
