@@ -12,6 +12,10 @@ export const generateWorkoutPlan = async (userProfile, selectedMuscles, availabl
     let model = getModel("gemini-2.5-flash");
 
     const prompt = `
+    CRITICAL: YOU MUST RESPOND IN ${language.startsWith('es') ? 'SPANISH (ESPAÑOL)' : 'ENGLISH'}.
+    - All text intended for the user (plan "name" and "coachAdvice") MUST BE in ${language.startsWith('es') ? 'Spanish' : 'English'}.
+    - The JSON structure itself (keys) must remain in English as defined below.
+
     You are a professional fitness coach assistant. 
     Create a personalized workout routine for a user with the following profile:
     - Age: ${userProfile.age}
@@ -26,8 +30,6 @@ export const generateWorkoutPlan = async (userProfile, selectedMuscles, availabl
     Available exercises in the user's library (use ONLY these exercises):
     ${availableExercises.map(ex => `- ID: ${ex.id}, Name: ${ex.name}, Target Muscle: ${ex.muscle}, Type: ${ex.type}`).join("\n")}
 
-    LANGUAGE: ${language.startsWith('es') ? 'Spanish (Español)' : 'English'}
-    - You MUST return the plan name and the coachAdvice in ${language.startsWith('es') ? 'Spanish' : 'English'}.
     - The exercise names MUST match the "Name" from the available exercises list provided.
 
     If the user didn't specify muscle groups, suggest a balanced workout based on their profile.
@@ -83,6 +85,9 @@ export const suggestMuscles = async (userProfile, language = 'en') => {
     let model = getModel("gemini-2.5-flash");
 
     const prompt = `
+    CRITICAL: YOU MUST RESPOND IN ${language.startsWith('es') ? 'SPANISH' : 'ENGLISH'}.
+    - The response MUST be a JSON array of strings in ${language.startsWith('es') ? 'Spanish' : 'English'}.
+
     Based on the following user profile, suggest 2 or 3 muscle groups they should train today for a balanced routine.
     Profile:
     - Age: ${userProfile.age}
@@ -91,8 +96,6 @@ export const suggestMuscles = async (userProfile, language = 'en') => {
     - Injuries: ${userProfile.injuries || "None"}
 
     Available Muscle Groups: Chest, Triceps, Back, Biceps, Front Leg, Back Leg, Leg, Shoulder, Forearm.
-
-    LANGUAGE: ${language.startsWith('es') ? 'Spanish' : 'English'}
 
     Response format MUST be a valid JSON array of strings, e.g. ["Chest", "Triceps"].
     Return ONLY the JSON array.
@@ -116,3 +119,36 @@ export const suggestMuscles = async (userProfile, language = 'en') => {
         return ["Leg", "Core"]; // Fallback
     }
 };
+
+export const getExerciseAdvice = async (exerciseName, language = 'en') => {
+    let model = getModel("gemini-2.5-flash");
+
+    const prompt = `
+    CRITICAL: YOU MUST RESPOND IN ${language.startsWith('es') ? 'SPANISH' : 'ENGLISH'}.
+    
+    You are an expert fitness coach. 
+    Give 3 short, high-impact technical tips or cues for the following exercise: "${exerciseName}".
+    
+    Be concise. Use bullet points. 
+    The goal is to help the user perform the exercise with perfect form and avoid injury.
+    
+    Response format: Plain text with bullets.
+    `;
+
+    try {
+        let result;
+        try {
+            result = await model.generateContent(prompt);
+        } catch (e) {
+            model = getModel("gemini-2.0-flash-exp");
+            result = await model.generateContent(prompt);
+        }
+        
+        const response = await result.response;
+        return response.text().trim();
+    } catch (error) {
+        console.error("Error getting exercise advice:", error);
+        return language.startsWith('es') ? "No se pudo obtener consejos en este momento." : "Could not get advice at this time.";
+    }
+};
+

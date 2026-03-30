@@ -1,14 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { saveExercise } from '../services/db';
-import { X, Save, FileText, Pencil } from 'lucide-react';
+import { X, Save, FileText, Pencil, Sparkles, Loader2 } from 'lucide-react';
 import ExerciseForm from './ExerciseForm';
+import { getExerciseAdvice } from '../services/ai';
+import { useTranslation } from 'react-i18next';
 
 const ExerciseDetail = ({ exercise, onClose }) => {
+    const { i18n } = useTranslation();
     const [notes, setNotes] = useState(exercise.notes || '');
     const [isSaving, setIsSaving] = useState(false);
+    const [isAIActive, setIsAIActive] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    // Local exercise state to update view immediately after edit
     const [currentExercise, setCurrentExercise] = useState(exercise);
 
     useEffect(() => {
@@ -23,6 +26,25 @@ const ExerciseDetail = ({ exercise, onClose }) => {
         setCurrentExercise(updated);
         // Simulate small delay for feedback
         setTimeout(() => setIsSaving(false), 500);
+    };
+
+    const handleAIAdvice = async () => {
+        setIsAIActive(true);
+        try {
+            const advice = await getExerciseAdvice(currentExercise.name, i18n.language);
+            const separator = notes.trim() ? '\n\n' : '';
+            const newNotes = notes.trim() + separator + advice;
+            setNotes(newNotes);
+            
+            // Auto save when AI advice is added
+            const updated = { ...currentExercise, notes: newNotes };
+            saveExercise(updated);
+            setCurrentExercise(updated);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsAIActive(false);
+        }
     };
 
     const handleUpdateExercise = (updatedExercise) => {
@@ -104,9 +126,29 @@ const ExerciseDetail = ({ exercise, onClose }) => {
 
                 {/* Notes Section */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-secondary)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>
-                        <FileText size={16} />
-                        <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>My Notes</span>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
+                            <FileText size={16} />
+                            <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Notes</span>
+                        </div>
+                        <button
+                            onClick={handleAIAdvice}
+                            disabled={isAIActive}
+                            className="flex-center"
+                            style={{ 
+                                background: 'rgba(139, 92, 246, 0.1)', 
+                                border: '1px solid rgba(139, 92, 246, 0.3)',
+                                color: 'var(--accent-primary)',
+                                padding: '0.3rem 0.6rem',
+                                borderRadius: '4px',
+                                fontSize: '0.7rem',
+                                gap: '0.3rem',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {isAIActive ? <Loader2 size={12} className="spin" /> : <Sparkles size={12} />}
+                            AI Advice
+                        </button>
                     </div>
                     <textarea
                         value={notes}

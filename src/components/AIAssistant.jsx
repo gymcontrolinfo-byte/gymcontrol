@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, Check, ChevronRight, Loader2, Save, X, Info } from 'lucide-react';
+import { Sparkles, Check, ChevronRight, Loader2, Save, X, Info, Lightbulb, MessageSquareText } from 'lucide-react';
 import { generateWorkoutPlan, suggestMuscles } from '../services/ai';
 import { subscribe, getExercises, saveSession } from '../services/db';
 import { v4 as uuidv4 } from 'uuid';
@@ -255,15 +255,33 @@ const AIAssistant = ({ onSave, onCancel }) => {
                                                     {fullEx?.thumbnail ? <img src={fullEx.thumbnail} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Sparkles size={12} /></div>}
                                                 </div>
                                                 <div style={{ flex: 1 }}>
-                                                    <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{ex.name}</div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                        <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{ex.name}</div>
+                                                        {fullEx?.notes && (
+                                                            <div title={fullEx.notes} style={{ color: 'var(--accent-primary)', cursor: 'help' }}>
+                                                                <MessageSquareText size={12} />
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{ex.sets} sets x {ex.reps} reps</div>
                                                 </div>
                                             </div>
                                         );
                                     })}
                                     {section.coachAdvice && (
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', borderTop: '1px solid rgba(139, 92, 246, 0.2)', paddingTop: '0.5rem', marginTop: '0.2rem' }}>
-                                            💡 {section.coachAdvice}
+                                        <div style={{ 
+                                            fontSize: '0.75rem', 
+                                            color: 'var(--accent-primary)', 
+                                            background: 'rgba(139, 92, 246, 0.08)',
+                                            padding: '0.6rem',
+                                            borderRadius: '6px',
+                                            marginTop: '0.4rem',
+                                            display: 'flex',
+                                            gap: '0.5rem',
+                                            alignItems: 'flex-start'
+                                        }}>
+                                            <Lightbulb size={14} style={{ flexShrink: 0, marginTop: '1px' }} />
+                                            <span>{section.coachAdvice}</span>
                                         </div>
                                     )}
                                 </div>
