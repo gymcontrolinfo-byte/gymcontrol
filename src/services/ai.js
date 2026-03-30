@@ -26,8 +26,8 @@ export const generateWorkoutPlan = async (userProfile, selectedMuscles, availabl
     Available exercises in the user's library (use ONLY these exercises):
     ${availableExercises.map(ex => `- ID: ${ex.id}, Name: ${ex.name}, Target Muscle: ${ex.muscle}, Type: ${ex.type}`).join("\n")}
 
-    LANGUAGE: ${language === 'es' ? 'Spanish (Español)' : 'English'}
-    - You MUST return the plan name and the coachAdvice in ${language === 'es' ? 'Spanish' : 'English'}.
+    LANGUAGE: ${language.startsWith('es') ? 'Spanish (Español)' : 'English'}
+    - You MUST return the plan name and the coachAdvice in ${language.startsWith('es') ? 'Spanish' : 'English'}.
     - The exercise names MUST match the "Name" from the available exercises list provided.
 
     If the user didn't specify muscle groups, suggest a balanced workout based on their profile.
@@ -86,7 +86,7 @@ export const suggestMuscles = async (userProfile, language = 'en') => {
 
     Available Muscle Groups: Chest, Triceps, Back, Biceps, Front Leg, Back Leg, Leg, Shoulder, Forearm.
 
-    LANGUAGE: ${language === 'es' ? 'Spanish' : 'English'}
+    LANGUAGE: ${language.startsWith('es') ? 'Spanish' : 'English'}
 
     Response format MUST be a valid JSON array of strings, e.g. ["Chest", "Triceps"].
     Return ONLY the JSON array.
